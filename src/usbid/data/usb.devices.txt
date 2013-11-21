@@ -1,0 +1,54 @@
+USB device number mappings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ 13 char	Input drivers
+		  0 = /dev/input/js0	First joystick
+		  1 = /dev/input/js1	Second joystick 
+		    ...
+		 32 = /dev/input/mouse0	First mouse 
+		 33 = /dev/input/mouse1 Second mouse
+		    ...
+		 63 = /dev/input/mice	Mixed input from all mice
+		 64 = /dev/input/event0 First event stream
+		 65 = /dev/input/event1 Second event stream
+		    ...
+
+		The current input system is used for USB devices only, however,
+		it isn't limited just to those, and hopefully will be the way
+		to access all input devices in the future.
+
+166 char	ACM USB modems
+		  0 = /dev/ttyACM0	First ACM modem
+		  1 = /dev/ttyACM1	Second ACM modem
+		    ...
+
+180 char	USB devices
+		  0 = /dev/usb/lp0	First USB printer
+		    ...
+		 15 = /dev/usb/lp15	16th USB printer
+		 32 = /dev/usb/mdc800	MDC800 USB camera
+		 48 = /dev/usb/scanner0	First USB scanner
+		    ...
+		 63 = /dev/usb/scanner15 16th USB scanner
+		 64 = /dev/usb/rio500	Diamond Rio 500
+		 96 = /dev/usb/hiddev0	1st USB HID device
+		    ...
+		111 = /dev/usb/hiddev15	16th USB HID device
+		112 = /dev/usb/auer0	1st auerswald ISDN device
+		    ...
+		127 = /dev/usb/auer15	16th auerswald ISDN device
+		128 = /dev/usb/brlvgr0	First Braille Voyager device
+		    ...
+		131 = /dev/usb/brlvgr3	Fourth Braille Voyager device
+		144 = /dev/usb/lcd	USB LCD device
+		240 = /dev/usb/dabusb0	First daubusb device
+		    ...
+		243 = /dev/usb/dabusb3	Fourth dabusb device
+
+188 char	USB serial converters
+		  0 = /dev/ttyUSB0	First USB serial converter
+		  1 = /dev/ttyUSB1	Second USB serial converter
+		    ...
+
+If you want to reserve a USB Minor number, please contact
+Greg Kroah-Hartman <greg@kroah.com>
