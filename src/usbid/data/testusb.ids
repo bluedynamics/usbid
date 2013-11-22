@@ -1,0 +1,77 @@
+# Vendors, devices and interfaces. Please keep sorted.
+0079  DragonRise Inc.
+	0006  Generic USB Joystick
+	0011  Gamepad
+0105  Trust International B.V.
+	145f  NW-3100 802.11b/g 54Mbps Wireless Network Adapter [zd1211]
+0460  Ace Cad Enterprise Co., Ltd
+	0004  Tablet (5x3.75)
+0d8d  Promotion & Display Technology, Ltd
+	0234  V-234 Composite Device
+	
+# List of known device classes, subclasses and protocols
+C 01  Audio
+	01  Control Device
+C 06  Imaging
+	01  Still Image Capture
+		01  Picture Transfer Protocol (PIMA 15470)
+C 09  Hub
+	00  Unused
+		00  Full speed (or root) hub
+		
+# List of Audio Class Terminal Types
+AT 0707  Analog Tape
+AT 0708  Phonograph
+AT 0709  VCR Audio
+
+# List of HID Descriptor Types
+HID 21  HID
+HID 22  Report
+HID 23  Physical
+
+# List of HID Descriptor Item Types
+R 08  Usage
+R 14  Logical Minimum
+R 18  Usage Minimum
+
+# List of Physical Descriptor Bias Types	
+BIAS 0  Not Applicable
+BIAS 1  Right Hand
+BIAS 2  Left Hand
+
+# List of Physical Descriptor Item Types
+PHY 00  None
+PHY 01  Hand
+PHY 02  Eyeball
+PHY 03  Eyebrow
+
+# List of HID Usages
+HUT 00  Undefined
+HUT 01  Generic Desktop Controls	
+	000  Undefined
+	001  Pointer
+	002  Mouse
+	004  Joystick
+	
+# List of Languages
+L 0001  Arabic
+	01  Saudi Arabia
+	02  Iraq
+L 0002  Bulgarian
+L 0003  Catalan
+L 0004  Chinese	
+	01  Traditional
+	02  Simplified
+	
+# HID Descriptor bCountryCode
+HCC 00  Not supported
+HCC 01  Arabic
+HCC 03  Canadian-Bilingual
+HCC 08  French		
+HCC 09  German
+
+# List of Video Class Terminal Types
+VT 0100  USB Vendor Specific
+VT 0101  USB Streaming
+VT 0202  Sequential Media
+VT 0403  Component Video

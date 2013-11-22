@@ -1,3 +1,5 @@
+from pkg_resources import resource_filename
+TEST_USBIDS_FILE = resource_filename(__name__, 'data/testusb.ids')
 import unittest
 import doctest 
 from pprint import pprint
@@ -9,17 +11,20 @@ optionflags = doctest.NORMALIZE_WHITESPACE | \
 
 TESTFILES = [
     'usbinfo.rst',
+    'test_device.rst',
 ]
 
 
 def test_suite():
     return unittest.TestSuite([
         doctest.DocFileSuite(
-            file, 
+            filename, 
             optionflags=optionflags,
             globs={'interact': interact,
-                   'pprint': pprint,},
-        ) for file in TESTFILES
+                   'pprint': pprint,
+                   'TEST_USBIDS_FILE': TEST_USBIDS_FILE,
+                   },
+        ) for filename in TESTFILES
     ])
 
 if __name__ == '__main__':                                   #pragma NO COVERAGE

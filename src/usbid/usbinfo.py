@@ -7,13 +7,23 @@ LISTOF_MAP = {
     'AT': '_audio_class_terminal_types',
     'HID': '_hid_descriptor_types',
     'R': '_hid_descriptor_item_types',
-    'BIAS': '._physical_descriptor_bias_types',
+    'BIAS': '_physical_descriptor_bias_types',
     'PHY': '_physical_descriptor_item_types',
     'HUT': '_hid_usages',
     'L': '_languages',
     'HCC': '_country_codes',
     'VT': '_video_class_terminal_types',
 }
+
+BLOCK_WITH_1_LEVELS = [
+    'AT',
+    'HID',
+    'R',
+    'BIAS',
+    'PHY',
+    'HCC',
+    'VT',                
+]
 
 BLOCK_WITH_3_LEVELS = ['C']
 
@@ -25,58 +35,79 @@ class USBInfo(object):
             setattr(self, value, None)
       
     def _parse_usbids(self, filename=DEFAULT_USBIDS_FILE):
+        """
+        the parser, which reads the usbids file and returns the information
+        """
         self.filename = filename
         block_0 = None
         block_1 = None
         block_2 = None
         block_type_key = None
         
-        with open(filename, 'r') as raw:
-            for line in raw:     
-                line = line.strip('\n')  
-                if not line or line[0] == '#':
-                    continue
-                          
-                if not line[0] == '\t':
-                    #lvl 0
-                    left, right = line.split('  ', 1)
+ #import pdb;pdb.set_trace()        
+        try:            
+            with open(filename, 'r') as raw:
+                for line in raw:  
+                    line = line.strip('\n') 
+                    #strip right whitespaces, because that causes errors
+                    line = line.rstrip() 
+                    if not line or line[0] == '#':
+                        continue
+                              
+                    if not line[0] == '\t':
+                        #lvl 0
+                        left, right = line.split('  ', 1)
+                        
+                        if not ' ' in left:
+                            #check usb_ids
+                            block_id = left
+                            block_type_key = '' 
+                        else:
+                            block_type_key, block_id  = left.split(' ')
+                            
+                        block_type = LISTOF_MAP[block_type_key]  
+                        block_0 = getattr(self, block_type)
+                        if block_0 is None:
+                            block_0 = {}
+                            setattr(self, block_type, block_0)
+                        
+                        """
+                        check if block has only 1 level. so that these blocks
+                        dont get filled with unnecessary empty dicts.
+                        because later on we check if a block has 3 levels,
+                        the blocks with 2 levels get automatically filled
+                        with the right  values
+                        """
+                        block_1 = {}
+                        if block_type_key in BLOCK_WITH_1_LEVELS:
+                            block_0[block_id] = (right)
+                            continue   
+                        else:
+                            block_0[block_id] = (right, block_1)
+                            continue
+                                   
+                    if line.startswith('\t\t'):
+                        #lvl2
+                        line = line.strip('\t\t')
+                        left, right = line.split('  ', 1)
+                        block_2[left] = right
+                        continue
                     
-                    if not ' ' in left:
-                        #check usb_ids
-                        block_id = left
-                        block_type_key = '' 
+                    if not line.startswith('\t'):
+                        raise ValueError("File corrupt")
+                    
+                    #lvl1
+                    line = line.strip('\t')
+                    left, right = line.split('  ', 1) 
+                    if block_type_key in BLOCK_WITH_3_LEVELS:
+                        block_2 = {}
+                        block_1[left] = (right, block_2)
                     else:
-                        block_type_key, block_id  = left.split(' ')
-                        
-                    block_type = LISTOF_MAP[block_type_key]  
-                    block_0 = getattr(self, block_type)
-                    if block_0 is None:
-                        block_0 = {}
-                        setattr(self, block_type, block_0)
-                        
-                    block_1 = {}
-                    block_0[block_id] = (right, block_1)
-                    continue
-                               
-                if line.startswith('\t\t'):
-                    #lvl2
-                    line = line.strip('\t\t')
-                    left, right = line.split('  ', 1)
-                    block_2[left] = right
-                    continue
-                
-                if not line.startswith('\t'):
-                    raise ValueError("File corrupt")
-                
-                #lvl1
-                line = line.strip('\t')
-                left, right = line.split('  ', 1) 
-                if block_type_key in BLOCK_WITH_3_LEVELS:
-                    block_2 = {}
-                    block_1[left] = (right, block_2)
-                else:
-                    block_1[left] = right
+                        block_1[left] = right
 
+        except IOError:
+            return "can't open file. Please check if it exists,and the path is set up correct."
+            
         @property
         def usb_ids(self):
             """
@@ -195,4 +226,6 @@ class USBInfo(object):
                 self._parse_usbids()
             return self._video_class_terminal_types
 
+#initial as a singleton, so that the parser only runs once
+USBINFO = USBInfo()
     

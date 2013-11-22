@@ -26,7 +26,7 @@ DATABASE_FILE_URL = 'http://www.linux-usb.org/usb.ids'
 
 class USBIDParser(object):
     _db = dict()
-
+    
     def __init__(self):
         if not os.path.exists(DATABASE_FILENAME):
             db_in = urllib2.urlopen(DATABASE_FILE_URL)
