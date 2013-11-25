@@ -1,23 +1,6 @@
+
 """
-idProduct
-idVendor
-port_number
-address
-bus
-iManufacturer
-iProduct
-iSerialNumber
-bDescriptorType
-bDeviceClass
-bDeviceProtocol
-bDeviceSubClass
-bLength
-bMaxPacketSize0
-bNumConfigurations
-bcdDevice
-"""
-"""
-#attrfor keyboard deviceobject 
+#attr for keyboard deviceobject 
  'address',
  'attach_kernel_driver',
  'bDescriptorType',
@@ -59,6 +42,10 @@ class TestDevice(object):
     @property
     def idVendor(self):
         return 0x46d
+ 
+    @property
+    def port_number(self):
+        return 2
     
     @property
     def address(self):
