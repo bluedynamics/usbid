@@ -2,18 +2,19 @@ import usb.core
 from usbid.usbinfo import USBINFO      
 from usbid.device_info import DeviceInfo
 
+
+import usb.util
+
 class GetDevices(object):
              
     def _get_connected_devices(self):
         all_devices = usb.core.find(find_all=True)
-        self.devices = []
-        self.count_devices = []
-        
-        for dev in all_devices:
+        #self.devices = []
+        self.devices = all_devices
+        #for dev in all_devices:
             # ignore hubs
-            if dev.bDeviceClass != 9:
-                self.devices.append(dev)
-                self.count_devices.append(dev)
+         #   if dev.bDeviceClass != 9:
+          #      self.devices.append(dev)
                 
         """
         (Pdb) self.devices[0].idVendor
@@ -22,14 +23,9 @@ class GetDevices(object):
         4097
         """
         #self.devices[dev]._unicque_id = 1
-
-        vendor_count = 0
-
-        import pdb;pdb.set_trace()
-        #da no weiter rumspieln
-        #iwia mit intersect oder map mal guggn
+        # dev = usb.core.find(idVendor=0x67b, idProduct=0x2303)
         return self.devices
-        
+
         
         
     def _get_infos(self):
@@ -38,14 +34,9 @@ class GetDevices(object):
         print 'Found %i devices,(hubs are being ignored)' % len(self.devices)
         
         for dev in self.devices:
-            dev_info_obj = DeviceInfo(dev)
-            
-            try:
-                dev_info_obj.print_info()              
-            except KeyError:
-            #    import pdb;pdb.set_trace() 
-            #    return "key id was not found"
-                continue         
+            #print infos for each device
+            dev_info_obj = DeviceInfo(dev)            
+            dev_info_obj.print_info()                    
 
 """
         idProduct: 0x2303

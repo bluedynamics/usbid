@@ -1,7 +1,7 @@
 from pkg_resources import resource_filename
 TEST_USBIDS_FILE = resource_filename(__name__, 'data/testusb.ids')
 import unittest
-import doctest 
+import doctest
 from pprint import pprint
 from interlude import interact
 
@@ -13,7 +13,7 @@ TESTFILES = [
     'usbinfo.rst',
     'test_device.rst',
     'device_info.rst',
-    'device_list.rst',  
+    'device_list.rst',
 ]
 
 

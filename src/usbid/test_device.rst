@@ -41,3 +41,4 @@ get values
     bcdDevice
   
     >>> #interact(locals()) 
+    

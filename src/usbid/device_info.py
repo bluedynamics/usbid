@@ -40,7 +40,7 @@ class DeviceInfo(object):
             res = USBINFO._usb_ids[self._vendor_id][0]
             return res
         except:
-            return "---ERROR--- can't find the vendor entry ---ERROR---"
+            return "UNKNOWN"
 
         
     @property
@@ -54,26 +54,18 @@ class DeviceInfo(object):
             res = USBINFO._usb_ids[self._vendor_id][1][self._product_id]
             return res
         except:
-            return "---ERROR--- can't find the product entry ---ERROR---"
+            return "UNKNOWN"
 
 
 
-    """
-    wahrscheinlich da no a property draufhaun wenn im get devices module, rauskimmt
-    das zwoa gleiche dranhangen. iwia if blabladevice.notunique dann internalid +=1
-    
-    """
+    """    
     @property
     def _unicque_id(self, count=None):
-        """
-        if more than one device with same vendor and product id, are present 
-        each of it will become a unicque identifier
-        """
         if count:
             return count
         else:
             return None
-
+    """
         
 
     def print_info(self):               
@@ -118,8 +110,8 @@ class DeviceInfo(object):
         print '    bus: ' + str(self.device.bus)
     
         #print unicqe id if it is set
-        if hasattr(self.device, '_unicque_id'):
-            print '    UnicqeId: ' + str(self.device._unicque_id)
+        #if hasattr(self.device, '_unicque_id'):
+        #    print '    UnicqeId: ' + str(self.device._unicque_id)
     
         print '    iManufacturer: ' + str(self.device.iManufacturer)
         print '    iProduct: ' + str(self.device.iProduct)
