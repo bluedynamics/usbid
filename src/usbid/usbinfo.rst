@@ -9,8 +9,7 @@ imports
 
     >>> from usbid.usbinfo import USBInfo
     >>> FAKE_FILE = '/i/dontexist'
- 
-    >>> #interact(locals()) 
+
     
 set up parser
 -------------
@@ -27,7 +26,8 @@ open a nonexisting file
 -----------------------
 
 ::
-    >>> #info._parse_usbids(FAKE_FILE)
+
+    >>> info._parse_usbids(FAKE_FILE)
     "can't open file. Please check if it exists,and the path is set up correct."
 
     

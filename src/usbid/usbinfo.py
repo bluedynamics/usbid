@@ -43,8 +43,7 @@ class USBInfo(object):
         block_1 = None
         block_2 = None
         block_type_key = None
-        
- #import pdb;pdb.set_trace()        
+                
         try:            
             with open(filename, 'r') as raw:
                 for line in raw:  
@@ -226,6 +225,6 @@ class USBInfo(object):
                 self._parse_usbids()
             return self._video_class_terminal_types
 
-#initial as a singleton, so that the parser only runs once
+#initialize as a singleton, so that the parser only runs once
 USBINFO = USBInfo()
     

@@ -1,20 +1,17 @@
-import usb.core
 from usbid.usbinfo import USBINFO      
 from usbid.device_info import DeviceInfo
 
 
-import usb.util
-
 class GetDevices(object):
              
-    def _get_connected_devices(self):
+    def get_connected_devices(self):
         all_devices = usb.core.find(find_all=True)
-        #self.devices = []
+        self.devices = []
         self.devices = all_devices
-        #for dev in all_devices:
+        for dev in all_devices:
             # ignore hubs
-         #   if dev.bDeviceClass != 9:
-          #      self.devices.append(dev)
+            if dev.bDeviceClass != 9:
+                self.devices.append(dev)
                 
         """
         (Pdb) self.devices[0].idVendor
@@ -28,7 +25,7 @@ class GetDevices(object):
 
         
         
-    def _get_infos(self):
+    def get_infos(self):
         print '*' * 80
         print '*' * 80
         print 'Found %i devices,(hubs are being ignored)' % len(self.devices)
