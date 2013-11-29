@@ -1,4 +1,5 @@
 import os
+import re
 from usbid.usbinfo import USBINFO
 
 
@@ -15,8 +16,9 @@ class DeviceNode(object):
     
     def __init__(self, path, parent, is_root=False, usbinfo=USBINFO):
         self.path = path 
-        self.is_root = is_root
         self.parent = parent
+        self.is_root = is_root
+
 
     @property
     def idVendor(self):
@@ -24,8 +26,9 @@ class DeviceNode(object):
         get the vendor id as hex
         evtl zerofill, testen? res = res.zfill(4)
         """
+        #vorher res.strip() jetzt mit testfs is aber alles voll mit \x00
         with open(os.path.join(self.path, "idVendor") ,"r") as fio:
-            res = fio.read().strip()
+            res = fio.read().strip("\n\x00")
         return res
 
     @property
@@ -34,7 +37,7 @@ class DeviceNode(object):
         get the product id as hex
         """
         with open(os.path.join(self.path, "idProduct") ,"r") as fio:
-            res = fio.read().strip()
+            res = fio.read().strip("\n\x00")
         return res
     
     
@@ -67,23 +70,21 @@ class DeviceNode(object):
             return "UNKNOWN"
 
 
-    @property    
-    def children(self):
-        #des als dict und mit keys alle nodes rausfinden port1,2,3...
-        #__getitem__ umbaun 
-        for filename in os.listdir(self.path):
-            import pdb;pdb.set_trace()
-            if ":" in filename or filename[0] not in "0123456789":
-                continue
-            yield DeviceNode(os.path.join(self.path, filename))
-            
+
     # 3-2.2.4:1.0              
-    """
-    ^\d{1}-{1} = 1x 3-2
-    (\d{1}.\d{1}) = group 2.2
-    .{1}\d{1} = mind 1x 2.4
-    
-    """
+    #de regex u alle keys(children) de nit mit :1.0 auhean griagn
+    #^[0-9\-\.]+$
+
+
+    def keys(self):
+        res = []
+        for dir in os.listdir(self.path):
+            #import pdb;pdb.set_trace()
+            if re.match("^[0-9\-\.]+$", dir):
+                dir_l, dir_r = dir.rsplit(".", 1)
+                res.append(int(dir_r))
+        return res
+             #da basteln
 
 
     def print_info(self):               

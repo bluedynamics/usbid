@@ -18,6 +18,7 @@ TESTFILES = [
     'device.rst',
     #'device_list.rst',
 ]
+#/sys/devices/pci0000:00/0000:00:1c.0/0000:02:00.0
 
 TEMPDIR = tempfile.mkdtemp()
 
@@ -25,7 +26,7 @@ tgz = tarfile.open(TEST_DATA)
 tgz.extractall(TEMPDIR)
 
 #define the testing root path
-MOCK_SYS = TEMPDIR + '/mocktree/sys/bus/usb/devices'
+MOCK_SYS = TEMPDIR + '/sys/bus/usb/devices'
 
 def test_suite():
     return unittest.TestSuite([
