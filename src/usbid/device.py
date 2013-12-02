@@ -4,13 +4,14 @@ from usbid.usbinfo import USBINFO
 
 
 def usb_roots(root_path='/sys/bus/usb/devices'):
-    usb_roots = {}
+    #todo try except wenn zugriff af falschen key
+    usb_roots = {}  
     for root in os.listdir(root_path):
         if root.startswith('usb'): 
             root_id = int(root[3:])
             usb_roots[root_id] = DeviceNode(os.path.join(root_path,root), root_id, True)
     return usb_roots
-
+    
 
 class DeviceNode(object):
     
@@ -18,8 +19,84 @@ class DeviceNode(object):
         self.path = path 
         self.parent = parent
         self.is_root = is_root
+        
+    # 3-2.2.4:1.0              
+    #de regex u alle keys(children) de nit mit :1.0 auhean griagn
+    #^[0-9\-\.]+$
 
+    def keys(self):
+        res = []
+        for dir in os.listdir(self.path):
+            #
+            #wenn root dann 3-1 daher split bei '-'
+            if self.is_root:
+                if re.match("^\d{1}-{1}\d{1}$", dir):
+                    dir_l, dir_r = dir.rsplit("-", 1)
+                    res.append(int(dir_r))
+                    continue
+                
+            if re.match("^[0-9\-\.]+$", dir):
+                dir_l, dir_r = dir.rsplit(".", 1)
+                res.append(int(dir_r))
+        return res
 
+    def values(self):
+        #da is objekt was dann af dem pfad liegt. mit regexp zambaun?
+        # bei __items__ gib i na is objekt zum entsprechenden key zrug
+        res = []
+        for dir in os.listdir(self.path):
+            if re.match("^\d{1}-{1}\d{1}$", dir):
+                #import pdb;pdb.set_trace()
+                dev = DeviceNode(os.path.join(self.path, dir), self.path)
+                res.append(dev)
+                continue
+            
+            if re.match("^[0-9\-\.]+$", dir):
+                dev = DeviceNode(os.path.join(self.path, dir), self.path)
+                res.append(dev)
+        return res  
+    
+    def items(self):
+        #return tuples of key value 1: <object at..blablapath2-1> and so on
+        res = {}
+        for dir in os.listdir(self.path):
+            #wenn root dann 3-1 daher split bei -
+            if self.is_root:
+                if re.match("^\d{1}-{1}\d{1}$", dir):
+                    dir_l, dir_r = dir.rsplit("-", 1)
+                    dev = DeviceNode(os.path.join(self.path, dir), self.path)
+                    
+                    res[int(dir_r)] = dev
+                    # old res.append(int(dir_r))
+                    continue
+                
+            if re.match("^[0-9\-\.]+$", dir):
+                dir_l, dir_r = dir.rsplit(".", 1)
+                dev = DeviceNode(os.path.join(self.path, dir), self.path)
+                res[int(dir_r)] = dev
+        return res
+    
+    
+    def __getitem__(self, key):
+
+        for dir in os.listdir(self.path):
+            #if a wrong index is given raise custom value error
+            try:
+                #extra check if is root-dir. needed???
+                if re.match("^\d{1}-{1}\d{1}$", dir):
+                    dir_l, dir_r = dir.rsplit("-", 1)
+                    if key == int(dir_r):
+                        dev = DeviceNode(os.path.join(self.path, dir), self.path)
+                        return dev
+
+                if re.match("^[0-9\-\.]+$", dir):                    
+                    dir_l, dir_r = dir.rsplit(".", 1)
+                    if key == int(dir_r):
+                        dev = DeviceNode(os.path.join(self.path, dir), self.path)
+                        return dev
+            except ValueError:
+                return "key not found"
+                
     @property
     def idVendor(self):
         """
@@ -71,21 +148,6 @@ class DeviceNode(object):
 
 
 
-    # 3-2.2.4:1.0              
-    #de regex u alle keys(children) de nit mit :1.0 auhean griagn
-    #^[0-9\-\.]+$
-
-
-    def keys(self):
-        res = []
-        for dir in os.listdir(self.path):
-            #import pdb;pdb.set_trace()
-            if re.match("^[0-9\-\.]+$", dir):
-                dir_l, dir_r = dir.rsplit(".", 1)
-                res.append(int(dir_r))
-        return res
-             #da basteln
-
 
     def print_info(self):               
         print 80 * '*'
@@ -105,4 +167,3 @@ class DeviceNode(object):
         # de noch intressant??? 'bDeviceClass','bDeviceProtocol','bDeviceSubClass','bcdDevice','bcdUSB',
         # noch checken welche werte needed, und mockupklasse checken obs richtig returnt
  
-
