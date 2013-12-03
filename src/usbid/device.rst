@@ -9,7 +9,7 @@ imports
     >>> from usbid.usbinfo import USBINFO
     >>> from usbid.device import DeviceNode
     >>> from usbid.device import usb_roots
-
+    >>> from usbid.device import traverse
     
 setup
 -----
@@ -110,8 +110,13 @@ get the root nodes
        Vendor Name: Prolific Technology, Inc.   
        
 
+
+
+    >>> #dev3.device_by_path()
+    >>> #'/tmp/tmpRRJ3vN/sys/bus/usb/devices/usb2/2-1/2-1.2/2-1.2.1/2-1.2.1:1.0/ttyUSB0'
+
        
-    >>> #interact(locals())    
+    >>> interact(locals())    
            
 
 
@@ -167,10 +172,6 @@ Out[12]:
  '2-1.2:1.0',
  '4-0:1.0',
  'usb3']
- 
- os.listdir(MOCK_SYS + "/usb3/")
- nur di attrs drauf koane children
-
 
 
 

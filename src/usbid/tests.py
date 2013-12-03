@@ -14,7 +14,7 @@ optionflags = doctest.NORMALIZE_WHITESPACE | \
               doctest.REPORT_ONLY_FIRST_FAILURE
 
 TESTFILES = [
-    #'usbinfo.rst',
+    'usbinfo.rst',
     'device.rst',
     #'device_list.rst',
 ]

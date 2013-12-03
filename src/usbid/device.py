@@ -11,7 +11,34 @@ def usb_roots(root_path='/sys/bus/usb/devices'):
             root_id = int(root[3:])
             usb_roots[root_id] = DeviceNode(os.path.join(root_path,root), root_id, True)
     return usb_roots
+
+    """
+    habs nit so mit der gschachtelten walker rekursion,
+    im fs bei usb devices is auf dem 
+    sys/bus/usb/devices/usb2/2-1/2-1.2/2-1.2.1/2-1.2.1:1.0/ttyUSB0/
+    nur sehr wenig info drauf -.-  evtl man anschaun
     
+    bei key_to_fs_dir - in ttyusb1 key zb mitgebn und dann suchn wos liegt?
+
+
+    """
+#mal testn aba geht nit so wirklich
+def traverse(data):
+    results = []
+    def inner(data):
+        
+        if isinstance(data, dict):
+            for item in data.values():
+                inner(item)
+        elif isinstance(data, list) or isinstance(data, tuple):
+            for item in data:
+                inner(item)
+        else:
+            results.append(data)
+    inner(data)
+    return results
+
+ 
 
 class DeviceNode(object):
     
@@ -19,7 +46,29 @@ class DeviceNode(object):
         self.path = path 
         self.parent = parent
         self.is_root = is_root
-        
+
+
+    def device_by_path(self):
+        # find a endpoint and look if it has a ttyusb folder inside
+        #needs some love and return obj and not only path?
+        #import pdb;pdb.set_trace()
+        for dir in os.listdir(self.path):
+            #^[0-9\-\.]+:[\d.\d]+$
+            if re.match("^[0-9\-\.]+:[\d.\d]+$", dir):
+                #new dir is ...:1.0
+                #import pdb;pdb.set_trace()
+                deep_dir = os.path.join(self.path, dir)
+                for dir in os.listdir(deep_dir):
+                    if re.match("^ttyUSB[\d]+$", dir):
+                        dir = os.path.join(deep_dir, dir)
+                        return dir
+                    
+# da is ttyUSB0 sys/bus/usb/devices/usb2/2-1/2-1.2/2-1.2.1/2-1.2.1:1.0    
+# da is es ttyUSB1 /sys/bus/usb/devices/usb2/2-1/2-1.2/2-1.2.6/2-1.2.6:1.0   
+
+
+
+
     # 3-2.2.4:1.0              
     #de regex u alle keys(children) de nit mit :1.0 auhean griagn
     #^[0-9\-\.]+$
@@ -96,6 +145,12 @@ class DeviceNode(object):
                         return dev
             except ValueError:
                 return "key not found"
+
+
+
+
+
+
                 
     @property
     def idVendor(self):
