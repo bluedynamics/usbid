@@ -16,9 +16,7 @@ optionflags = doctest.NORMALIZE_WHITESPACE | \
 TESTFILES = [
     'usbinfo.rst',
     'device.rst',
-    #'device_list.rst',
 ]
-#/sys/devices/pci0000:00/0000:00:1c.0/0000:02:00.0
 
 TEMPDIR = tempfile.mkdtemp()
 
