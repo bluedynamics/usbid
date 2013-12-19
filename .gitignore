@@ -24,4 +24,5 @@ docs/make.bat
 dist/
 include/
 lib/
-
+coverage/
+local/
