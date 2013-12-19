@@ -78,7 +78,8 @@ just for info: dev1.fs_path '/tmp/tmp27WLl9/sys/bus/usb/devices/usb2/2-1
 
 ::    
 
-    >>> dev1 = DeviceNode(1, os.path.join(root_dev.fs_path, "2-1"), root_dev)   
+    >>> dev1 = DeviceNode(1, os.path.join(root_dev.fs_path, "2-1"), root_dev)
+          
  
 
 lookup the methods for first node
@@ -107,6 +108,13 @@ the results should be'2-1.6', '2-1.5', '2-1.2',  and leave out this'2-1:1.0'
     >>> dev1.path
     [2, 1]
     >>> #interact(locals())
+
+Check for non existent::
+
+    >>> dev1[9]   
+    Traceback (most recent call last):
+    ...
+    KeyError: 'No such Device with 9 with in path 2/1'
 
 
 second node

@@ -15,9 +15,13 @@ information.
 
 usage::
     
-    from usbid import USBID
+    >>> from usbid.usbinfo import USBINFO
+    >>> USBINFO
+    >>> USBINFO. 
+    
 
-Lookup the ``usbinfo.py`` and ``usbinfo.rst`` to see how it can be used.
+For further details lookup the ``usbinfo.py`` and ``usbinfo.rst`` to see how
+it can be used.
 
 
 device

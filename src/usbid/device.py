@@ -2,26 +2,25 @@ import os
 import re
 from usbid.usbinfo import USBINFO
 
-#regex which are often needed
+# regex which are often needed
 PARENT = re.compile("^\d{1}-{1}\d{1}$")
 CHILD = re.compile("^[0-9\-\.]+$")
 TTY = re.compile(".*:\d{1}.\d{1}")
-
 
 
 def usb_roots(root_path='/sys/bus/usb/devices'):
     """
     This returns a dict of the usb roots.
     """
-    #todo try except when access on wrong key
-    usb_roots = {}  
+    # todo try except when access on wrong key
+    usb_roots = {}
     for root in os.listdir(root_path):
-        if root.startswith('usb'): 
+        if root.startswith('usb'):
             root_id = int(root[3:])
             usb_roots[root_id] = DeviceNode(
-                root_id, 
-                os.path.join(root_path,root), 
-                root_id, 
+                root_id,
+                os.path.join(root_path, root),
+                root_id,
                 True
             )
     return usb_roots
@@ -32,7 +31,8 @@ def devicelist(root_path='/sys/bus/usb/devices'):
     This returns a list of DeviceNode objects
     """
     res = []
-    def walk(parent):     
+
+    def walk(parent):
         for child in parent.values():
             res.append(child)
             walk(child)
@@ -40,16 +40,15 @@ def devicelist(root_path='/sys/bus/usb/devices'):
     return res
 
 
-
-
-class DeviceNode(object): 
-    def __init__(self, own_id, fs_path, parent, is_root=False, usbinfo=USBINFO):
+class DeviceNode(object):
+    def __init__(self, own_id, fs_path, parent, is_root=False,
+                 usbinfo=USBINFO):
         self.own_id = own_id
-        self.fs_path = fs_path 
+        self.fs_path = fs_path
         self.parent = parent
         self.is_root = is_root
         self.usbinfo = usbinfo
-        
+
     @property
     def path(self):
         """
@@ -60,8 +59,7 @@ class DeviceNode(object):
         while not current.is_root:
             current = current.parent
             path.insert(0, current.own_id)
-        return path 
-
+        return path
 
     def keys(self):
         res = []
@@ -76,47 +74,47 @@ class DeviceNode(object):
 
     def values(self):
         return [_[1] for _ in self.items()]
-    
+
     def items(self):
         res = []
         for node in os.listdir(self.fs_path):
             if self.is_root and PARENT.match(node):
                 child_id = int(node.rsplit("-", 1)[1])
-                dev = DeviceNode(child_id, os.path.join(self.fs_path, node), 
-                                 self.fs_path)                    
+                dev = DeviceNode(child_id, os.path.join(self.fs_path, node),
+                                 self.fs_path)
                 res.append((child_id, dev))
             elif CHILD.match(node):
                 child_id = int(node.rsplit(".", 1)[1])
-                dev = DeviceNode(child_id, os.path.join(self.fs_path, node), 
+                dev = DeviceNode(child_id, os.path.join(self.fs_path, node),
                                  self.fs_path)
                 res.append((child_id, dev))
         return res
-        
+
     def __getitem__(self, key):
         for node in os.listdir(self.fs_path):
-            #todo if a wrong index is given raise custom value error
-            try:
-                if PARENT.match(node):
-                    node_r = node.rsplit("-", 1)[1]
-                    if key == int(node_r):
-                        dev = DeviceNode(key, os.path.join(self.fs_path, node), self.fs_path)
-                        return dev
+            if PARENT.match(node):
+                node_r = node.rsplit("-", 1)[1]
+                if key == int(node_r):
+                    dev = DeviceNode(key, os.path.join(self.fs_path, node),
+                                     self.fs_path)
+                    return dev
 
-                if CHILD.match(node):                    
-                    node_r = node.rsplit(".", 1)[1]
-                    if key == int(node_r):
-                        dev = DeviceNode(key, os.path.join(self.fs_path, node), self.fs_path)
-                        return dev
-            except ValueError:
-                return "key not found"
-                
+            if CHILD.match(node):
+                node_r = node.rsplit(".", 1)[1]
+                if key == int(node_r):
+                    dev = DeviceNode(key, os.path.join(self.fs_path, node),
+                                     self.fs_path)
+                    return dev
+        raise KeyError("No such Device with %s with in path %s" %
+                       (key, '/'.join([str(_) for _ in self.path])))
+
     @property
     def idVendor(self):
         """
         get the vendor id as hex
         test if zerofill needed? res = res.zfill(4)
         """
-        with open(os.path.join(self.fs_path, "idVendor") ,"r") as fio:
+        with open(os.path.join(self.fs_path, "idVendor"), "r") as fio:
             res = fio.read().strip("\n\x00")
         return res
 
@@ -125,7 +123,7 @@ class DeviceNode(object):
         """
         get the product id as hex
         """
-        with open(os.path.join(self.fs_path, "idProduct") ,"r") as fio:
+        with open(os.path.join(self.fs_path, "idProduct"), "r") as fio:
             res = fio.read().strip("\n\x00")
         return res
 
@@ -135,44 +133,43 @@ class DeviceNode(object):
         get vendor name from USBINFO db file
         """
         try:
-            return self.usbinfo._usb_ids[self.idVendor][0]
-        except:  # TODO catch specific
+            return self.usbinfo.usb_ids[self.idVendor][0]
+        except KeyError:
             return "UNKNOWN"
-        
+
     @property
     def nameProduct(self):
         """
         get product name from USBINFO db file
         """
         try:
-            return self.usbinfo._usb_ids[self.idVendor][1][self.idProduct]
-        except:  # TODO catch specific
-            return "UNKNOWN" 
-        
+            return self.usbinfo.usb_ids[self.idVendor][1][self.idProduct]
+        except KeyError:
+            return "UNKNOWN"
+
     @property
     def tty(self):
         """
         return name of serial device or None if its not a serial device
         """
         for filename in os.listdir(self.fs_path):
-            #import pdb;pdb.set_trace()
             if TTY.match(filename):
-                for filename in os.listdir(os.path.join(self.fs_path, filename)):
+                sub_path_name = os.path.join(self.fs_path, filename)
+                for filename in os.listdir(sub_path_name):
                     if filename.startswith("tty"):
                         return filename
-            
 
     def __str__(self):
         """
         return string with information nicely formatted
          """
-        result = ""             
+        result = ""
         result += "idProduct: " + self.idProduct + "\n"
         result += "idVendor: " + self.idVendor + "\n"
         result += "Product Name: " + self.nameProduct + "\n"
         result += "Vendor Name: " + self.nameVendor
-        return result 
-        
+        return result
+
         # other useful stats which can be accessed:
         # port_number, address, bus, bDeviceClass,bDeviceProtocol,
         # bDeviceSubClass,bcdDevice,bcdUSB
