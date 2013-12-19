@@ -10,8 +10,8 @@ usbinfo
 Get information about USB-devices from identifiers based on the
 `Linux USB information file <http://www.linux-usb.org/usb.ids>`_
 
-In the data folder theres a file named ``usb.ids``, which contains the
-information.
+In the data folder there is a file named ``usb.ids`` containing different
+information about usb devices.
 
 usage::
     
