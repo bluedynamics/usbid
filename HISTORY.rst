@@ -2,6 +2,11 @@
 History
 =======
 
+1.1
+---
+
+- nothing done so far
+
 1.0
 ---
 
