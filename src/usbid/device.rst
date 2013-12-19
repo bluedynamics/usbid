@@ -13,7 +13,7 @@ imports
     
 setup
 -----
- 
+
 ::
     >>> USBINFO._parse_usbids()
     >>> roots = usb_roots(MOCK_SYS)  
@@ -70,7 +70,7 @@ lookup the methods for root
  
 first node
 ----------
-       
+
 setup first node
 ................
 
@@ -88,18 +88,18 @@ the results should be'2-1.6', '2-1.5', '2-1.2',  and leave out this'2-1:1.0'
 
 ::
 
-    >>> dev1.keys()
-    [6, 5, 2]
+    >>> sorted(dev1.keys())
+    [2, 5, 6]
     
     >>> pprint(dev1.values())
     [<usbid.device.DeviceNode object at 0x...>, 
      <usbid.device.DeviceNode object at 0x...>, 
      <usbid.device.DeviceNode object at 0x...>]
     
-    >>> pprint(dev1.items())
-    [(6, <usbid.device.DeviceNode object at 0x...>),
+    >>> pprint(sorted(dev1.items()))
+    [(2, <usbid.device.DeviceNode object at 0x...>),
      (5, <usbid.device.DeviceNode object at 0x...>),
-     (2, <usbid.device.DeviceNode object at 0x...>)]
+     (6, <usbid.device.DeviceNode object at 0x...>)]
      
     >>> dev1[6]   
     <usbid.device.DeviceNode object at 0x...>
@@ -159,7 +159,7 @@ just for info: dev3.fs_path '/tmp/tmpUCRk4t/sys/bus/usb/devices/usb2/2-1/2-1.2/2
 lookup the methods for end node
 ...............................
 
-    
+
 the next 3 ones should evaluate to false, because there are no more childs::
     >>> bool(dev3.keys())
     False
@@ -222,7 +222,7 @@ print info for the first tty
     Product Name: PL2303 Serial Port
     Vendor Name: Prolific Technology, Inc. 
 
-    >>> interact(locals())
+    >> interact(locals())
 
 get filesystem path for the tty
 

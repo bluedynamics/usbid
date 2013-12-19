@@ -1,20 +1,21 @@
-Help Text
-=========
+Tree of/ Info about Linux USB Device
+====================================
 
-This module helps to get infos for your connected usb devices, and find out 
+This module helps to get infos for your connected usb devices, and find out
 where they are mounted on your fs. it basically consists of two parts.
 
 usbinfo
 -------
 
-This is basically a parser with many useful sorting properties, which checks your 
-connected devices and tries to lookup their information.
-In the data folder theres a file named ``usb.ids``, which contains the 
-Informations.
-The latest version can be obtained from ``http://www.linux-usb.org/usb.ids``
+Get information about USB-devices from identifiers based on the
+`Linux USB information file <http://www.linux-usb.org/usb.ids>`_
 
-Theres also a ``usb.devices.txt`` file, to lookup some deviceclass info .
+In the data folder theres a file named ``usb.ids``, which contains the
+information.
 
+usage::
+    
+    from usbid import USBID
 
 Lookup the ``usbinfo.py`` and ``usbinfo.rst`` to see how it can be used.
 
@@ -58,7 +59,7 @@ get filesystem path for the first tty
 Source Code
 ===========
 
-The sources are in a GIT DVCS with its main branches at 
+The sources are in a GIT DVCS with its main branches at
 `github <http://github.com/bluedynamics/usbid>`_.
 
 We'd be happy to see many forks and pull-requests to make usbid even better.

@@ -13,8 +13,8 @@ imports
     
 set up parser
 -------------
- 
- ::
+
+::
    
     >>> info = USBInfo()
     
@@ -28,7 +28,9 @@ open a nonexisting file
 ::
 
     >>> info._parse_usbids(FAKE_FILE)
-    "can't open file. Please check if it exists,and the path is set up correct."
+    Traceback (most recent call last):
+    ...
+    IOError: Can't open file /i/dontexist in order to parse usbinfo.
 
     
 open test usb info file and parse the individual lists
