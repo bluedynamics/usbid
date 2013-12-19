@@ -98,7 +98,10 @@ open test usb info file and parse the individual lists
      '0202': 'Sequential Media',
      '0403': 'Component Video'}
 
-Test property access with autoparsing::
+Public API
+----------
+
+Property access with on-demand parsing::
 
     >>> info = USBInfo(TEST_USBIDS_FILE)
     >>> pprint(info.usb_ids)
