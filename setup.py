@@ -3,11 +3,11 @@ import os
 
 version = '1.0'
 shortdesc = \
-'Human readable usbid'
+'API to get information about USB devices'
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 longdesc += open(os.path.join(os.path.dirname(__file__), 'HISTORY.rst')).read()
 longdesc += open(os.path.join(os.path.dirname(__file__), 'LICENSE.rst')).read()
-tests_require = ['interlude','ipython', 'pysqlite',]
+tests_require = ['interlude', 'ipython', 'pysqlite', ]
 
 setup(name='usbid',
       version=version,
@@ -25,7 +25,7 @@ setup(name='usbid',
       url="http://pypi.python.org/pypi/usbid",
       license='Simplified BSD',
       packages=find_packages('src'),
-      package_dir = {'': 'src'},
+      package_dir={'': 'src'},
       include_package_data=True,
       zip_safe=True,
       install_requires=[
@@ -33,10 +33,10 @@ setup(name='usbid',
       ],
       tests_require=tests_require,
       test_suite="usbid.tests.test_suite",
-      extras_require = dict(
+      extras_require=dict(
           test=tests_require,
       ),
       entry_points={
         'console_scripts': ['usbid = usbid.script:run'],
-      },      
+      },
 )
