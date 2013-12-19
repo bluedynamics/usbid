@@ -2,8 +2,11 @@
 History
 =======
 
+1.1
+---
+
 
 1.0
 ---
 
-- initial [benniboy, 2013-11-21]
+- initial release [benniboy, 2013-12-19]

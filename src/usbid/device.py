@@ -2,7 +2,7 @@ import os
 import re
 from usbid.usbinfo import USBINFO
 
-
+#regex which are often needed
 PARENT = re.compile("^\d{1}-{1}\d{1}$")
 CHILD = re.compile("^[0-9\-\.]+$")
 TTY = re.compile(".*:\d{1}.\d{1}")
@@ -10,6 +10,9 @@ TTY = re.compile(".*:\d{1}.\d{1}")
 
 
 def usb_roots(root_path='/sys/bus/usb/devices'):
+    """
+    This returns a dict of the usb roots.
+    """
     #todo try except when access on wrong key
     usb_roots = {}  
     for root in os.listdir(root_path):
@@ -24,8 +27,22 @@ def usb_roots(root_path='/sys/bus/usb/devices'):
     return usb_roots
 
 
-class DeviceNode(object):
-    
+def devicelist(root_path='/sys/bus/usb/devices'):
+    """
+    This returns a list of DeviceNode objects
+    """
+    res = []
+    def walk(parent):     
+        for child in parent.values():
+            res.append(child)
+            walk(child)
+    walk(usb_roots(root_path=root_path))
+    return res
+
+
+
+
+class DeviceNode(object): 
     def __init__(self, own_id, fs_path, parent, is_root=False, usbinfo=USBINFO):
         self.own_id = own_id
         self.fs_path = fs_path 
@@ -35,7 +52,9 @@ class DeviceNode(object):
         
     @property
     def path(self):
-        #import pdb;pdb.set_trace()
+        """
+        returns path of the Devicenode as list of integers
+        """
         current = self
         path = [self.own_id]
         while not current.is_root:
@@ -44,16 +63,10 @@ class DeviceNode(object):
         return path 
 
 
-
-    # 3-2.2.4:1.0              
-    #de regex u alle keys(children) de nit mit :1.0 auhean griagn
-    #^[0-9\-\.]+$
-
     def keys(self):
         res = []
         for node in os.listdir(self.fs_path):
-            # wenn root dann 3-1 daher split bei '-'
-            if self.is_root and PARENT.match(node): # re.compile module level"
+            if self.is_root and PARENT.match(node):
                 node_r = node.rsplit("-", 1)[1]
                 res.append(int(node_r))
             elif CHILD.match(node):
@@ -67,25 +80,22 @@ class DeviceNode(object):
     def items(self):
         res = []
         for node in os.listdir(self.fs_path):
-            #wenn root dann 3-1 daher split bei -
             if self.is_root and PARENT.match(node):
                 child_id = int(node.rsplit("-", 1)[1])
                 dev = DeviceNode(child_id, os.path.join(self.fs_path, node), 
                                  self.fs_path)                    
-                res.append( (child_id, dev) )
+                res.append((child_id, dev))
             elif CHILD.match(node):
                 child_id = int(node.rsplit(".", 1)[1])
                 dev = DeviceNode(child_id, os.path.join(self.fs_path, node), 
                                  self.fs_path)
-                res.append( (child_id, dev) )
+                res.append((child_id, dev))
         return res
         
     def __getitem__(self, key):
-
         for node in os.listdir(self.fs_path):
-            #if a wrong index is given raise custom value error
+            #todo if a wrong index is given raise custom value error
             try:
-                #extra check if is root-dir. needed?
                 if PARENT.match(node):
                     node_r = node.rsplit("-", 1)[1]
                     if key == int(node_r):
@@ -142,7 +152,7 @@ class DeviceNode(object):
     @property
     def tty(self):
         """
-        return name of serial device or None if its not a serail device
+        return name of serial device or None if its not a serial device
         """
         for filename in os.listdir(self.fs_path):
             #import pdb;pdb.set_trace()
@@ -154,7 +164,7 @@ class DeviceNode(object):
 
     def __str__(self):
         """
-         __str__ return string with information nicely formatted
+        return string with information nicely formatted
          """
         result = ""             
         result += "idProduct: " + self.idProduct + "\n"
@@ -162,21 +172,7 @@ class DeviceNode(object):
         result += "Product Name: " + self.nameProduct + "\n"
         result += "Vendor Name: " + self.nameVendor
         return result 
-
         
-        # other useful stats:
+        # other useful stats which can be accessed:
         # port_number, address, bus, bDeviceClass,bDeviceProtocol,
-        # bDeviceSubClass,bcdDevice,bcdUSB,
-
-
-        
-def devicelist(root_path='/sys/bus/usb/devices'):
-    res = []
-    def walk(parent):     
-        for child in parent.values():
-            res.append(child)
-            walk(child)
-    walk(usb_roots(root_path=root_path))
-    return res
-        
-        
+        # bDeviceSubClass,bcdDevice,bcdUSB

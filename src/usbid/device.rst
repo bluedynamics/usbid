@@ -9,6 +9,7 @@ imports
     >>> from usbid.usbinfo import USBINFO
     >>> from usbid.device import DeviceNode
     >>> from usbid.device import usb_roots
+    >>> from usbid.device import devicelist
     
 setup
 -----
@@ -185,15 +186,35 @@ print end device info
     Vendor Name: Prolific Technology, Inc.   
 
 
-    >>> from usbid.device import devicelist
-    >>> #deviclist(MOCK_SYS)
+devicelist
+----------
+
+get all usbdevices
+
+::
+  
+    >>> len(devicelist(MOCK_SYS))
+    13
     
-    
+check ttys
+..........
+
+Here we iterate over the the devicelist and only show the ones that are ttys
+
+::
     
     >>> ttys = [_ for _ in devicelist(MOCK_SYS) if _.tty]
+ 
+two connected tty should be found
+
+::
     
     >>> len(ttys)
     2
+
+print info for the first tty
+
+::
     
     >>> print ttys[0]
     idProduct: 2303
@@ -201,4 +222,11 @@ print end device info
     Product Name: PL2303 Serial Port
     Vendor Name: Prolific Technology, Inc. 
 
+    >>> interact(locals())
+
+get filesystem path for the tty
+
+::
+    >>> ttys[0].fs_path
+    '/tmp/...sys/bus/usb/devices/usb2/2-1/2-1.2/2-1.2.1'
 

@@ -116,8 +116,7 @@ class USBInfo(object):
             if self._usb_ids is None:
                 self._parse_usbids()
             return self._usb_ids
-        
-        
+                
         @property
         def device_classes(self):
             """
@@ -136,8 +135,7 @@ class USBInfo(object):
             if self._device_classes is None:
                 self._parse_usbids()
             return self._device_classes
-
-        
+       
         @property
         def audio_class_terminal_types(self):
             """
@@ -147,8 +145,7 @@ class USBInfo(object):
             if self._audio_class_terminal_types is None:
                 self._parse_usbids()
             return self._audio_class_terminal_types
-        
-   
+         
         @property
         def hid_descriptor_types(self):
             """
@@ -157,8 +154,7 @@ class USBInfo(object):
             """
             if self._hid_descriptor_types is None:
                 self._parse_usbids()
-            return self._hid_descriptor_types
-        
+            return self._hid_descriptor_types        
         
         @property
         def hid_descriptor_item_types(self):
@@ -169,8 +165,7 @@ class USBInfo(object):
             if self._hid_descriptor_item_types is None:
                 self._parse_usbids()
             return self._hid_descriptor_item_types
-        
-        
+                
         @property
         def physical_descriptor_bias_types(self):
             """
@@ -180,8 +175,7 @@ class USBInfo(object):
             if self._physical_descriptor_bias_types is None:
                 self._parse_usbids()
             return self._physical_descriptor_bias_types
-        
-            
+                    
         @property
         def physical_descriptor_item_types(self):
             """
@@ -191,8 +185,7 @@ class USBInfo(object):
             if self._physical_descriptor_item_types is None:
                 self._parse_usbids()
             return self._physical_descriptor_item_types
-        
-     
+             
         @property
         def hid_usages(self):
             """
@@ -202,8 +195,7 @@ class USBInfo(object):
             if self._hid_usages is None:
                 self._parse_usbids()
             return self._hid_usages
-        
-   
+           
         @property
         def languages(self):
             """
@@ -213,7 +205,6 @@ class USBInfo(object):
             if self._languages is None:
                 self._parse_usbids()
             return self._languages
-
 
         @property
         def video_class_terminal_types(self):
