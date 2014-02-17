@@ -98,7 +98,7 @@ setup second node. Just for info: dev2.fs_path
 
     >>> dev2 = DeviceNode(2, os.path.join(dev1.fs_path,"2-1.2"), dev1)
 
-    >>> dev2.keys()
+    >>> sorted(dev2.keys())
     [1, 6]
 
 lookup the methods for second node::
@@ -107,7 +107,7 @@ lookup the methods for second node::
     [<usbid.device.DeviceNode object at 0x...>,
      <usbid.device.DeviceNode object at 0x...>]
 
-    >>> pprint(dev2.items())
+    >>> pprint(sorted(dev2.items()))
     [(1, <usbid.device.DeviceNode object at 0x...>),
      (6, <usbid.device.DeviceNode object at 0x...>)]
 
@@ -182,4 +182,4 @@ print info for the first tty::
 get filesystem path for the tty::
 
     >>> ttys[0].fs_path
-    '/tmp/...sys/bus/usb/devices/usb2/2-1/2-1.2/2-1.2.1'
+    '/tmp/...sys/bus/usb/devices/usb2/2-1/2-1.2/2-...'

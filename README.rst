@@ -211,3 +211,4 @@ Contributors
 
 - Jens W. Klein <jens@bluedynamics.com>
 - Benjamin Stefaner <bs@kleinundpartner.at>
+- Robert Niederreiter <rnix@squarewave.at>
