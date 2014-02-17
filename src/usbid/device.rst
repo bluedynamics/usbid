@@ -33,7 +33,7 @@ set a device root by hand for the test. fs location is
 ``/tmp/tmp27WLl9/sys/bus/usb/devices/usb2``::
 
     >>> root_dev = DeviceNode(
-    ...     2, os.path.join(MOCK_SYS, "usb2"), roots[2], is_root=True)
+    ...     2, os.path.join(MOCK_SYS, "usb2"), None)
 
 lookup the methods for root::
 
@@ -178,6 +178,11 @@ print info for the first tty::
     idVendor: 067b
     Product Name: PL2303 Serial Port
     Vendor Name: Prolific Technology, Inc.
+
+read node path::
+
+    >>> ttys[0].path
+    [2, 1, 2, ...]
 
 get filesystem path for the tty::
 

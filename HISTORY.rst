@@ -5,6 +5,9 @@ History
 1.1dev
 ------
 
+- fix device node hierarchy
+  [rnix, 2014-02-17]
+
 - housekeeping, fix tests
   [rnix, 2014-02-17]
 

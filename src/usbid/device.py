@@ -19,9 +19,7 @@ def usb_roots(root_path='/sys/bus/usb/devices'):
             usb_roots[root_id] = DeviceNode(
                 root_id,
                 os.path.join(root_path, root),
-                root_id,
-                True
-            )
+                None)
     return usb_roots
 
 
@@ -40,12 +38,10 @@ def devicelist(root_path='/sys/bus/usb/devices'):
 
 class DeviceNode(object):
 
-    def __init__(self, own_id, fs_path, parent, is_root=False,
-                 usbinfo=USBINFO):
+    def __init__(self, own_id, fs_path, parent, usbinfo=USBINFO):
         self.own_id = own_id
         self.fs_path = fs_path
         self.parent = parent
-        self.is_root = is_root
         self.usbinfo = usbinfo
 
     @property
@@ -54,7 +50,7 @@ class DeviceNode(object):
         """
         current = self
         path = [self.own_id]
-        while not current.is_root:
+        while current.parent is not None:
             current = current.parent
             path.insert(0, current.own_id)
         return path
@@ -62,7 +58,7 @@ class DeviceNode(object):
     def keys(self):
         res = []
         for node in os.listdir(self.fs_path):
-            if self.is_root and PARENT.match(node):
+            if self.parent is None and PARENT.match(node):
                 node_r = node.rsplit("-", 1)[1]
                 res.append(int(node_r))
             elif CHILD.match(node):
@@ -76,15 +72,17 @@ class DeviceNode(object):
     def items(self):
         res = []
         for node in os.listdir(self.fs_path):
-            if self.is_root and PARENT.match(node):
+            if self.parent is None and PARENT.match(node):
                 child_id = int(node.rsplit("-", 1)[1])
-                dev = DeviceNode(child_id, os.path.join(self.fs_path, node),
-                                 self.fs_path)
+                dev = DeviceNode(child_id,
+                                 os.path.join(self.fs_path, node),
+                                 self)
                 res.append((child_id, dev))
             elif CHILD.match(node):
                 child_id = int(node.rsplit(".", 1)[1])
-                dev = DeviceNode(child_id, os.path.join(self.fs_path, node),
-                                 self.fs_path)
+                dev = DeviceNode(child_id,
+                                 os.path.join(self.fs_path, node),
+                                 self)
                 res.append((child_id, dev))
         return res
 
@@ -93,15 +91,17 @@ class DeviceNode(object):
             if PARENT.match(node):
                 node_r = node.rsplit("-", 1)[1]
                 if key == int(node_r):
-                    dev = DeviceNode(key, os.path.join(self.fs_path, node),
-                                     self.fs_path)
+                    dev = DeviceNode(key,
+                                     os.path.join(self.fs_path, node),
+                                     self)
                     return dev
 
             if CHILD.match(node):
                 node_r = node.rsplit(".", 1)[1]
                 if key == int(node_r):
-                    dev = DeviceNode(key, os.path.join(self.fs_path, node),
-                                     self.fs_path)
+                    dev = DeviceNode(key,
+                                     os.path.join(self.fs_path, node),
+                                     self)
                     return dev
         raise KeyError("No such Device with %s with in path %s" %
                        (key, '/'.join([str(_) for _ in self.path])))
