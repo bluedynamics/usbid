@@ -183,7 +183,7 @@ system::
 In order ot make filtering of devices easier all devices are available as a
 flat list::
 
-     >>> from usbid.device import device_list
+     >>> from usbid.device import devicelist
      
 This allows easy filtering i.e. by ``vendorId`` or for all available ttys as
 shown here::       
