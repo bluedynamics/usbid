@@ -9,8 +9,7 @@ TTY = re.compile(".*:\d{1}.\d{1}")
 
 
 def usb_roots(root_path='/sys/bus/usb/devices'):
-    """
-    This returns a dict of the usb roots.
+    """This returns a dict of the usb roots.
     """
     # todo try except when access on wrong key
     usb_roots = {}
@@ -27,8 +26,7 @@ def usb_roots(root_path='/sys/bus/usb/devices'):
 
 
 def devicelist(root_path='/sys/bus/usb/devices'):
-    """
-    This returns a list of DeviceNode objects
+    """This returns a list of DeviceNode objects.
     """
     res = []
 
@@ -41,6 +39,7 @@ def devicelist(root_path='/sys/bus/usb/devices'):
 
 
 class DeviceNode(object):
+
     def __init__(self, own_id, fs_path, parent, is_root=False,
                  usbinfo=USBINFO):
         self.own_id = own_id
@@ -51,8 +50,7 @@ class DeviceNode(object):
 
     @property
     def path(self):
-        """
-        returns path of the Devicenode as list of integers
+        """Returns path of this device node as list of integers.
         """
         current = self
         path = [self.own_id]
@@ -110,8 +108,7 @@ class DeviceNode(object):
 
     @property
     def idVendor(self):
-        """
-        get the vendor id as hex
+        """Get the vendor id as hex
         test if zerofill needed? res = res.zfill(4)
         """
         with open(os.path.join(self.fs_path, "idVendor"), "r") as fio:
@@ -120,8 +117,7 @@ class DeviceNode(object):
 
     @property
     def idProduct(self):
-        """
-        get the product id as hex
+        """Get the product id as hex.
         """
         with open(os.path.join(self.fs_path, "idProduct"), "r") as fio:
             res = fio.read().strip("\n\x00")
@@ -129,8 +125,7 @@ class DeviceNode(object):
 
     @property
     def nameVendor(self):
-        """
-        get vendor name from USBINFO db file
+        """Get vendor name from USBINFO db file.
         """
         try:
             return self.usbinfo.usb_ids[self.idVendor][0]
@@ -139,8 +134,7 @@ class DeviceNode(object):
 
     @property
     def nameProduct(self):
-        """
-        get product name from USBINFO db file
+        """Get product name from USBINFO db file.
         """
         try:
             return self.usbinfo.usb_ids[self.idVendor][1][self.idProduct]
@@ -149,8 +143,7 @@ class DeviceNode(object):
 
     @property
     def tty(self):
-        """
-        return name of serial device or None if its not a serial device
+        """Return name of serial device or None if its not a serial device.
         """
         for filename in os.listdir(self.fs_path):
             if TTY.match(filename):
@@ -160,16 +153,14 @@ class DeviceNode(object):
                         return filename
 
     def __str__(self):
+        """Return string with information nicely formatted.
         """
-        return string with information nicely formatted
-         """
+        # other useful stats which can be accessed:
+        # port_number, address, bus, bDeviceClass,bDeviceProtocol,
+        # bDeviceSubClass,bcdDevice,bcdUSB
         result = ""
         result += "idProduct: " + self.idProduct + "\n"
         result += "idVendor: " + self.idVendor + "\n"
         result += "Product Name: " + self.nameProduct + "\n"
         result += "Vendor Name: " + self.nameVendor
         return result
-
-        # other useful stats which can be accessed:
-        # port_number, address, bus, bDeviceClass,bDeviceProtocol,
-        # bDeviceSubClass,bcdDevice,bcdUSB
