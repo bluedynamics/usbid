@@ -89,7 +89,7 @@ Devices are read from the Linux sys-fs. So this work only with Linux or any OS
 that provides the same sys-fs. Its tested with Debian based systems like Ubuntu
 and Linux-Mint and aims to work on Raspbian.
 
-The USB devices are provides in a tree like they are connected to the computer.
+The USB devices are provided in a tree like they are connected to the computer.
 Each USB root hub is an own tree in the virtual ``usb_roots()`` dict.
 If another external hub is connected to the  root hub, it is a subtree as a
 node of the root hub. Actual devices are the  leafs, i.e a mouse, keyboard,
@@ -171,7 +171,7 @@ A special case is built in for serial devices. The number and type of a tty
 is assigned in plugin order. So a serial device named ``/dev/ttyUSB0`` can be
 next time ``/dev/ttyUSB1`` if there are two almost same device are connected.
 
-As a human you now its connected to port 1 and port 2 of a usb hub. Now knowing
+As a human you know its connected to port 1 and port 2 of a usb hub. Now knowing
 the ``path`` allows us to store this information in application logic.
 
 ``DeviceNode`` provides the actual name of the serial character device in the
