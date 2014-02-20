@@ -2,7 +2,14 @@ USB devices and information API
 ===============================
 
 This module helps to get infos for your connected usb devices, and find out
-where they are mounted on your fs. it basically consists of two parts.
+where they are mounted on your fs. It basically consists of two parts:
+
+usbinfo
+    get information about usbdevices from its identifiers.
+
+devices
+    get a tree of the connected devices.
+
 
 usbinfo
 -------
