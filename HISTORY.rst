@@ -2,8 +2,8 @@
 History
 =======
 
-1.1dev
-------
+1.0.1
+-----
 
 - fix device node hierarchy
   [rnix, 2014-02-17]

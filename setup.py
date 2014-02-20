@@ -3,7 +3,7 @@ from setuptools import setup
 from setuptools import find_packages
 
 
-version = '1.1dev'
+version = '1.0.1'
 shortdesc = \
 'API to get information about USB devices'
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
