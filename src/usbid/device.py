@@ -156,12 +156,17 @@ class DeviceNode(object):
     def tty(self):
         """Return name of serial device or None if its not a serial device.
         """
+        def match_tty(path):
+            for filename in os.listdir(path):
+                if filename.startswith("tty"):
+                    # final tty device
+                    if filename != 'tty':
+                        return filename
+                    # search in tty sub directory
+                    return match_tty(os.path.join(path, filename))
         for filename in os.listdir(self.fs_path):
             if TTY.match(filename):
-                sub_path_name = os.path.join(self.fs_path, filename)
-                for filename in os.listdir(sub_path_name):
-                    if filename.startswith("tty"):
-                        return filename
+                return match_tty(os.path.join(self.fs_path, filename))
 
     def __str__(self):
         """Return string with information nicely formatted.
