@@ -2,16 +2,16 @@ import os
 import re
 from usbid.usbinfo import USBINFO
 
-# regex which are often needed
 PARENT = re.compile("^\d{1}-{1}\d{1}$")
 CHILD = re.compile("^[0-9\-\.]+$")
 TTY = re.compile(".*:\d{1}.\d{1}")
 
+USB_FS_ROOT = '/sys/bus/usb/devices'
 
-def usb_roots(root_path='/sys/bus/usb/devices'):
+def usb_roots(root_path=USB_FS_ROOT):
     """This returns a dict of the usb roots.
     """
-    # todo try except when access on wrong key
+    # XXX: try except when access on wrong key
     usb_roots = {}
     for root in os.listdir(root_path):
         if root.startswith('usb'):
@@ -23,17 +23,28 @@ def usb_roots(root_path='/sys/bus/usb/devices'):
     return usb_roots
 
 
-def devicelist(root_path='/sys/bus/usb/devices'):
+def device_list(root_path=USB_FS_ROOT):
     """This returns a list of DeviceNode objects.
     """
     res = []
-
     def walk(parent):
         for child in parent.values():
             res.append(child)
             walk(child)
     walk(usb_roots(root_path=root_path))
     return res
+
+# B/C
+devicelist = device_list
+
+
+def device_by_path(path, root_path=USB_FS_ROOT):
+    """Return device node by path.
+    """
+    node = usb_roots(root_path=root_path)
+    for name in path:
+        node = node[name]
+    return node
 
 
 class DeviceNode(object):

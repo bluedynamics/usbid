@@ -7,7 +7,8 @@ imports::
     >>> from usbid.usbinfo import USBINFO
     >>> from usbid.device import DeviceNode
     >>> from usbid.device import usb_roots
-    >>> from usbid.device import devicelist
+    >>> from usbid.device import device_list
+    >>> from usbid.device import device_by_path
 
 setup::
 
@@ -153,18 +154,18 @@ print end device info::
     Vendor Name: Prolific Technology, Inc.
 
 
-devicelist
-----------
+device list
+-----------
 
 get all usbdevices::
 
-    >>> len(devicelist(MOCK_SYS))
+    >>> len(device_list(MOCK_SYS))
     13
 
-check ttys. Here we iterate over the the devicelist and only show the ones that
-are ttys::
+check ttys. Here we iterate over the the device list and only show the ones
+that are ttys::
 
-    >>> ttys = [_ for _ in devicelist(MOCK_SYS) if _.tty]
+    >>> ttys = [_ for _ in device_list(MOCK_SYS) if _.tty]
 
 two connected tty should be found::
 
@@ -188,3 +189,12 @@ get filesystem path for the tty::
 
     >>> ttys[0].fs_path
     '/tmp/...sys/bus/usb/devices/usb2/2-1/2-1.2/2-...'
+
+
+device by path
+--------------
+
+Get device by known path::
+
+    >>> device_by_path(ttys[0].path, root_path=MOCK_SYS)
+    <usbid.device.DeviceNode object at ...>

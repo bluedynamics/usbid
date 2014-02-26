@@ -190,12 +190,12 @@ system::
 In order ot make filtering of devices easier all devices are available as a
 flat list::
 
-     >>> from usbid.device import devicelist
+     >>> from usbid.device import device_list
      
 This allows easy filtering i.e. by ``vendorId`` or for all available ttys as
 shown here::       
 
-    >>> ttys = [_ for _ in devicelist() if _.tty]
+    >>> ttys = [_ for _ in device_list() if _.tty]
 
 
 For testing purposes there is a ``mocktree.tgz`` inside the data folder,
