@@ -2,8 +2,8 @@
 History
 =======
 
-1.0.2 (unreleased)
-------------------
+1.0.2
+-----
 
 - Rename ``usbid.device.devicelist`` to ``usbid.device.device_list``. B/C
   import available.
