@@ -2,8 +2,8 @@
 History
 =======
 
-1.0.3 (unreleased)
-------------------
+1.0.3
+-----
 
 - concrete ``ttyXXX`` device might live in ``tty`` subdirectory.
   [rnix, 2014-02-26]
