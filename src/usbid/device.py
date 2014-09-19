@@ -90,6 +90,8 @@ class DeviceNode(object):
                                  self)
                 res.append((child_id, dev))
             elif CHILD.match(node):
+                # XXX: node might not contain '.'
+                #      (happened at a USB3 controller)
                 child_id = int(node.rsplit(".", 1)[1])
                 dev = DeviceNode(child_id,
                                  os.path.join(self.fs_path, node),
