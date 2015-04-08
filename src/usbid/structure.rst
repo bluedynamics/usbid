@@ -1,7 +1,10 @@
 Linux USB structure
 ===================
 
-Container::
+Container
+---------
+
+::
 
     >>> from usbid.structure import Container
     >>> container = Container()
@@ -28,7 +31,11 @@ Container::
     >>> test_container['1']
     '1'
 
-FileAttributes::
+
+FileAttributes
+--------------
+
+::
 
     >>> import os
     >>> import tempfile
@@ -67,7 +74,11 @@ FileAttributes::
     >>> import shutil
     >>> shutil.rmtree(tempdir)
 
-USB::
+
+USB
+---
+
+::
 
     >>> from usbid.structure import USB
 
@@ -117,7 +128,11 @@ USB::
     >>> usb.get('1', default=MARKER) is MARKER
     False
 
-Bus::
+
+Bus
+---
+
+::
 
     >>> bus = usb['3']
     >>> bus
@@ -193,7 +208,11 @@ Bus::
     ('supports_autosuspend', '1'), 
     ('uevent', 'DEVTYPE=usb_interface\nDRIVER=hub\nPRODUCT=1d6b/2/313\nTYPE=9/0/1\nINTERFACE=9/0/0\nMODALIAS=usb:v1D6Bp0002d0313dc09dsc00dp01ic09isc00ip00in00')]
 
-Port::
+
+Port
+----
+
+::
 
     >>> port = bus['2']
     >>> port
@@ -317,7 +336,11 @@ Port::
     ('supports_autosuspend', '1'), 
     ('uevent', 'DEVTYPE=usb_interface\nDRIVER=ftdi_sio\nPRODUCT=403/6001/600\nTYPE=0/0/0\nINTERFACE=255/255/255\nMODALIAS=usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00')]
 
-USB Tree::
+
+Test data 1 Tree
+----------------
+
+::
 
     >>> usb.printtree()
     <usbid.structure.USB [/.../test_1/sys/bus/usb/devices] at ...>
@@ -442,3 +465,117 @@ USB Tree::
     '/.../test_1/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0', 
     '/.../test_1/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1', 
     '/.../test_1/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
+
+
+Test data 2 Tree
+----------------
+
+::
+
+    >>> test_data_2_dir = os.path.join(
+    ...     TEMPDIR, 'test_2', 'sys', 'bus', 'usb', 'devices')
+
+    >>> usb = USB(fs_path=test_data_2_dir)
+    >>> usb.printtree()
+    <usbid.structure.USB [/.../test_2/sys/bus/usb/devices] at ...>
+      ...
+      <usbid.structure.Bus [usb3] at ...>
+          - Linux 3.13.0-48-generic xhci_hcd
+          - xHCI Host Controller
+        <usbid.structure.Interface [3-0:1.0] at ...>
+        <usbid.structure.Port [3-2] at ...>
+            - FTDI
+            - USB <-> Serial Cable
+          <usbid.structure.Interface [3-2:1.0] at ...>
+            - ttyUSB0
+          <usbid.structure.Interface [3-2:1.1] at ...>
+            - ttyUSB1
+      ...
+
+    >>> tty_ifaces = sorted(
+    ...     usb.aggregated_interfaces(tty=True),
+    ...     key=lambda x: x.fs_path
+    ... )
+    >>> ['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]
+    ['.../test_2/sys/bus/usb/devices/usb3/3-2/3-2:1.0 - ttyUSB0', 
+    '/.../test_2/sys/bus/usb/devices/usb3/3-2/3-2:1.1 - ttyUSB1', 
+    '/.../test_2/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0', 
+    '/.../test_2/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1', 
+    '/.../test_2/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
+
+
+Test data 3 Tree
+----------------
+
+::
+
+    >>> test_data_3_dir = os.path.join(
+    ...     TEMPDIR, 'test_3', 'sys', 'bus', 'usb', 'devices')
+
+    >>> usb = USB(fs_path=test_data_3_dir)
+    >>> usb.printtree()
+    <usbid.structure.USB [/.../test_3/sys/bus/usb/devices] at ...>
+      <usbid.structure.Bus [usb3] at ...>
+          - Linux 3.13.0-48-generic xhci_hcd
+          - xHCI Host Controller
+        <usbid.structure.Interface [3-0:1.0] at ...>
+        <usbid.structure.Port [3-2] at ...>
+          <usbid.structure.Interface [3-2:1.0] at ...>
+          <usbid.structure.Port [3-2.2] at ...>
+              - DMX4ALL
+              - NanoDMX Interface
+            <usbid.structure.Interface [3-2.2:1.0] at ...>
+              - ttyACM3
+            <usbid.structure.Interface [3-2.2:1.1] at ...>
+          <usbid.structure.Port [3-2.4] at ...>
+              - Prolific Technology Inc.
+              - USB-Serial Controller D
+            <usbid.structure.Interface [3-2.4:1.0] at ...>
+              - ttyUSB0
+          <usbid.structure.Port [3-2.6] at ...>
+            <usbid.structure.Interface [3-2.6:1.0] at ...>
+            <usbid.structure.Port [3-2.6.1] at ...>
+                - FTDI
+                - FT232R USB UART
+              <usbid.structure.Interface [3-2.6.1:1.0] at ...>
+                - ttyUSB3
+            <usbid.structure.Port [3-2.6.2] at ...>
+                - FTDI
+                - FT232R USB UART
+              <usbid.structure.Interface [3-2.6.2:1.0] at ...>
+                - ttyUSB4
+            <usbid.structure.Port [3-2.6.3] at ...>
+                - FTDI
+                - FT232R USB UART
+              <usbid.structure.Interface [3-2.6.3:1.0] at ...>
+                - ttyUSB5
+            <usbid.structure.Port [3-2.6.4] at ...>
+                - FTDI
+                - FT232R USB UART
+              <usbid.structure.Interface [3-2.6.4:1.0] at ...>
+                - ttyUSB6
+          <usbid.structure.Port [3-2.7] at ...>
+              - FTDI
+              - USB <-> Serial Cable
+            <usbid.structure.Interface [3-2.7:1.0] at ...>
+              - ttyUSB1
+            <usbid.structure.Interface [3-2.7:1.1] at ...>
+              - ttyUSB2
+      ...
+
+    >>> tty_ifaces = sorted(
+    ...     usb.aggregated_interfaces(tty=True),
+    ...     key=lambda x: x.fs_path
+    ... )
+    >>> ['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]
+    ['/.../test_3/sys/bus/usb/devices/usb3/3-2/3-2.2/3-2.2:1.0 - ttyACM3', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-2/3-2.4/3-2.4:1.0 - ttyUSB0', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.1/3-2.6.1:1.0 - ttyUSB3', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.2/3-2.6.2:1.0 - ttyUSB4', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.3/3-2.6.3:1.0 - ttyUSB5', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.4/3-2.6.4:1.0 - ttyUSB6', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-2/3-2.7/3-2.7:1.0 - ttyUSB1', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-2/3-2.7/3-2.7:1.1 - ttyUSB2', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1', 
+    '/.../test_3/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
