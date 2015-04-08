@@ -317,7 +317,7 @@ Port::
     ('supports_autosuspend', '1'), 
     ('uevent', 'DEVTYPE=usb_interface\nDRIVER=ftdi_sio\nPRODUCT=403/6001/600\nTYPE=0/0/0\nINTERFACE=255/255/255\nMODALIAS=usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00')]
 
-Tree::
+USB Tree::
 
     >>> usb.printtree()
     <usbid.structure.USB [/.../test_1/sys/bus/usb/devices] at ...>
