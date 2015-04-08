@@ -20,6 +20,7 @@ optionflags = doctest.NORMALIZE_WHITESPACE | \
 TESTFILES = [
     'usbinfo.rst',
     'device.rst',
+    'structure.rst',
 ]
 
 
