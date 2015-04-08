@@ -146,7 +146,18 @@ class FileAttributes(FSLocation):
         return object.__getattribute__(self, name)
 
 
-class USB(Container, FSLocation):
+class ReprMixin(object):
+
+    def __repr__(self):
+        return '<{0}.{1} [{2}] at {3}>'.format(
+            self.__module__,
+            self.__class__.__name__,
+            self.fs_name,
+            id(self)
+        )
+
+
+class USB(Container, FSLocation, ReprMixin):
     """Object representing USB filsystem root.
     """
 
@@ -179,7 +190,7 @@ class InterfaceProvider(Container, FSLocation):
         return ifaces
 
 
-class Bus(FileAttributes, InterfaceProvider):
+class Bus(FileAttributes, InterfaceProvider, ReprMixin):
     """Object representing a USB bus.
     """
     __file_attributes__ = [
@@ -237,7 +248,7 @@ class Bus(FileAttributes, InterfaceProvider):
         return Port(name=key, parent=self, fs_path=port_path)
 
 
-class Port(FileAttributes, InterfaceProvider):
+class Port(FileAttributes, InterfaceProvider, ReprMixin):
     """Object representing a USB port.
     """
     __file_attributes__ = [
@@ -294,7 +305,7 @@ class Port(FileAttributes, InterfaceProvider):
         return Port(name=key, parent=self, fs_path=port_path)
 
 
-class Interface(FileAttributes):
+class Interface(FileAttributes, ReprMixin):
     """Object representing a USB interface.
     """
     __file_attributes__ = [

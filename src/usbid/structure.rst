@@ -69,13 +69,14 @@ FileAttributes::
 
 USB::
 
+    >>> from usbid.structure import USB
+
     >>> test_data_1_dir = os.path.join(
     ...     TEMPDIR, 'test_1', 'sys', 'bus', 'usb', 'devices')
 
-    >>> from usbid.structure import USB
     >>> usb = USB(fs_path=test_data_1_dir)
     >>> usb
-    <usbid.structure.USB object at ...>
+    <usbid.structure.USB [devices] at ...>
 
     >>> usb.fs_path
     '.../test_1/sys/bus/usb/devices'
@@ -95,19 +96,19 @@ USB::
     KeyError: '0'
 
     >>> usb['1']
-    <usbid.structure.Bus object at ...>
+    <usbid.structure.Bus [usb1] at ...>
 
-    >>> usb.values()
-    [<usbid.structure.Bus object at ...>, 
-    <usbid.structure.Bus object at ...>, 
-    <usbid.structure.Bus object at ...>, 
-    <usbid.structure.Bus object at ...>]
+    >>> sorted(usb.values(), key=lambda x: x.fs_name)
+    [<usbid.structure.Bus [usb1] at ...>, 
+    <usbid.structure.Bus [usb2] at ...>, 
+    <usbid.structure.Bus [usb3] at ...>, 
+    <usbid.structure.Bus [usb4] at ...>]
 
     >>> sorted(usb.items())
-    [('1', <usbid.structure.Bus object at ...>), 
-    ('2', <usbid.structure.Bus object at ...>), 
-    ('3', <usbid.structure.Bus object at ...>), 
-    ('4', <usbid.structure.Bus object at ...>)]
+    [('1', <usbid.structure.Bus [usb1] at ...>), 
+    ('2', <usbid.structure.Bus [usb2] at ...>), 
+    ('3', <usbid.structure.Bus [usb3] at ...>), 
+    ('4', <usbid.structure.Bus [usb4] at ...>)]
 
     >>> MARKER = object()
     >>> usb.get('0', default=MARKER) is MARKER
@@ -120,7 +121,7 @@ Bus::
 
     >>> bus = usb['3']
     >>> bus
-    <usbid.structure.Bus object at ...>
+    <usbid.structure.Bus [usb3] at ...>
 
     >>> bus.name
     '3'
@@ -134,15 +135,15 @@ Bus::
     KeyError: '1'
 
     >>> bus['2']
-    <usbid.structure.Port object at ...>
+    <usbid.structure.Port [3-2] at ...>
 
     >>> bus.values()
-    [<usbid.structure.Port object at ...>, 
-    <usbid.structure.Port object at ...>]
+    [<usbid.structure.Port [3-2] at ...>, 
+    <usbid.structure.Port [3-4] at ...>]
 
     >>> bus.items()
-    [('2', <usbid.structure.Port object at ...>), 
-    ('4', <usbid.structure.Port object at ...>)]
+    [('2', <usbid.structure.Port [3-2] at ...>), 
+    ('4', <usbid.structure.Port [3-4] at ...>)]
 
     >>> get_file_attribues(bus)
     [('authorized', '1'), 
@@ -177,7 +178,7 @@ Bus::
     ('version', '2.00')]
 
     >>> bus.interfaces
-    [<usbid.structure.Interface object at ...>]
+    [<usbid.structure.Interface [3-0:1.0] at ...>]
 
     >>> interface = bus.interfaces[0]
     >>> get_file_attribues(interface)
@@ -196,7 +197,7 @@ Port::
 
     >>> port = bus['2']
     >>> port
-    <usbid.structure.Port object at ...>
+    <usbid.structure.Port [3-2] at ...>
 
     >>> port.fs_path
     '.../test_1/sys/bus/usb/devices/usb3/3-2'
@@ -236,7 +237,7 @@ Port::
     ('version', '2.00')]
 
     >>> port.interfaces
-    [<usbid.structure.Interface object at ...>]
+    [<usbid.structure.Interface [3-2:1.0] at ...>]
 
     >>> interface = port.interfaces[0]
     >>> get_file_attribues(interface)
@@ -261,7 +262,7 @@ Port::
 
     >>> sub_port = port['1']
     >>> sub_port
-    <usbid.structure.Port object at ...>
+    <usbid.structure.Port [3-2.1] at ...>
 
     >>> sub_port.fs_path
     '.../test_1/sys/bus/usb/devices/usb3/3-2/3-2.1'
@@ -301,7 +302,7 @@ Port::
     ('version', '2.00')]
 
     >>> sub_port.interfaces
-    [<usbid.structure.Interface object at ...>]
+    [<usbid.structure.Interface [3-2.1:1.0] at ...>]
 
     >>> interface = sub_port.interfaces[0]
     >>> get_file_attribues(interface)
