@@ -141,10 +141,6 @@ Bus::
     [('2', <usbid.structure.Port object at ...>), 
     ('4', <usbid.structure.Port object at ...>)]
 
-    >>> interfaces = bus.interfaces
-    >>> interfaces
-    [<usbid.structure.Interface object at ...>]
-
     >>> get_file_attribues(bus)
     [('authorized', '1'), 
     ('authorized_default', '1'), 
@@ -177,6 +173,22 @@ Bus::
     ('urbnum', '833'), 
     ('version', '2.00')]
 
+    >>> bus.interfaces
+    [<usbid.structure.Interface object at ...>]
+
+    >>> interface = bus.interfaces[0]
+    >>> get_file_attribues(interface)
+    [('bAlternateSetting', '0'), 
+    ('bInterfaceClass', '09'), 
+    ('bInterfaceNumber', '00'), 
+    ('bInterfaceProtocol', '00'), 
+    ('bInterfaceSubClass', '00'), 
+    ('bNumEndpoints', '01'), 
+    ('interface', None), 
+    ('modalias', 'usb:v1D6Bp0002d0313dc09dsc00dp01ic09isc00ip00in00'), 
+    ('supports_autosuspend', '1'), 
+    ('uevent', 'DEVTYPE=usb_interface\nDRIVER=hub\nPRODUCT=1d6b/2/313\nTYPE=9/0/1\nINTERFACE=9/0/0\nMODALIAS=usb:v1D6Bp0002d0313dc09dsc00dp01ic09isc00ip00in00')]
+
 Port::
 
     >>> port = bus['2']
@@ -188,9 +200,6 @@ Port::
 
     >>> port.fs_name
     '3-2'
-
-    >>> port.interfaces
-    [<usbid.structure.Interface object at ...>]
 
     >>> get_file_attribues(port)
     [('authorized', '1'), 
@@ -223,6 +232,22 @@ Port::
     ('urbnum', '47'), 
     ('version', '2.00')]
 
+    >>> port.interfaces
+    [<usbid.structure.Interface object at ...>]
+
+    >>> interface = port.interfaces[0]
+    >>> get_file_attribues(interface)
+    [('bAlternateSetting', '0'), 
+    ('bInterfaceClass', '09'), 
+    ('bInterfaceNumber', '00'), 
+    ('bInterfaceProtocol', '00'), 
+    ('bInterfaceSubClass', '00'), 
+    ('bNumEndpoints', '01'), 
+    ('interface', None), 
+    ('modalias', 'usb:v0409p005Ad0100dc09dsc00dp01ic09isc00ip00in00'), 
+    ('supports_autosuspend', '1'), 
+    ('uevent', 'DEVTYPE=usb_interface\nDRIVER=hub\nPRODUCT=409/5a/100\nTYPE=9/0/1\nINTERFACE=9/0/0\nMODALIAS=usb:v0409p005Ad0100dc09dsc00dp01ic09isc00ip00in00')]
+
     >>> port.keys()
     ['1', '2', '3', '4']
 
@@ -240,9 +265,6 @@ Port::
 
     >>> sub_port.fs_name
     '3-2.1'
-
-    >>> sub_port.interfaces
-    [<usbid.structure.Interface object at ...>]
 
     >>> get_file_attribues(sub_port)
     [('authorized', '1'), 
@@ -274,3 +296,19 @@ Port::
     ('uevent', 'MAJOR=189\nMINOR=373\nDEVNAME=bus/usb/003/118\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=403/6001/600\nTYPE=0/0/0\nBUSNUM=003\nDEVNUM=118'), 
     ('urbnum', '15'), 
     ('version', '2.00')]
+
+    >>> sub_port.interfaces
+    [<usbid.structure.Interface object at ...>]
+
+    >>> interface = sub_port.interfaces[0]
+    >>> get_file_attribues(interface)
+    [('bAlternateSetting', '0'), 
+    ('bInterfaceClass', 'ff'), 
+    ('bInterfaceNumber', '00'), 
+    ('bInterfaceProtocol', 'ff'), 
+    ('bInterfaceSubClass', 'ff'), 
+    ('bNumEndpoints', '02'), 
+    ('interface', 'FT232R USB UART'), 
+    ('modalias', 'usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00'), 
+    ('supports_autosuspend', '1'), 
+    ('uevent', 'DEVTYPE=usb_interface\nDRIVER=ftdi_sio\nPRODUCT=403/6001/600\nTYPE=0/0/0\nINTERFACE=255/255/255\nMODALIAS=usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00')]

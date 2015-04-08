@@ -297,6 +297,19 @@ class Port(FileAttributes, InterfaceProvider):
 class Interface(FileAttributes):
     """Object representing a USB interface.
     """
+    __file_attributes__ = [
+        'bAlternateSetting',
+        'bInterfaceClass',
+        'bInterfaceNumber',
+        'bInterfaceProtocol',
+        'bInterfaceSubClass',
+        'bNumEndpoints',
+        'interface',
+        'modalias',
+        'supports_autosuspend',
+        'uevent',
+    ]
+    # ttyUSB0
 
     def __init__(self, fs_path):
         if not os.path.isdir(fs_path):
