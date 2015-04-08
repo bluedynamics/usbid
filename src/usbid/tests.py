@@ -7,17 +7,21 @@ import unittest
 import tempfile
 import tarfile
 
+
 TEST_USBIDS_FILE = resource_filename(__name__, 'data/testusb.ids')
 TEST_DATA = resource_filename(__name__, 'data/mocktree.tgz')
+
 
 optionflags = doctest.NORMALIZE_WHITESPACE | \
               doctest.ELLIPSIS | \
               doctest.REPORT_ONLY_FIRST_FAILURE
 
+
 TESTFILES = [
     'usbinfo.rst',
     'device.rst',
 ]
+
 
 TEMPDIR = tempfile.mkdtemp()
 
