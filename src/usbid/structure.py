@@ -156,8 +156,41 @@ class ReprMixin(object):
             id(self)
         )
 
+    def printtree(self, indent=0):
+        print '{0}{1}'.format(indent * ' ', repr(self))
+        manufacturer = getattr(self, 'manufacturer', None)
+        if manufacturer is not None:
+            print '{0}- {1}'.format((indent + 4) * ' ', manufacturer)
+        product = getattr(self, 'product', None)
+        if product is not None:
+            print '{0}- {1}'.format((indent + 4) * ' ', product)
+        if isinstance(self, InterfaceProvider):
+            for iface in sorted(self.interfaces, key=lambda x: x.fs_name):
+                print '{0}{1}'.format((indent + 2) * ' ', repr(iface))
+                tty = iface.tty
+                if tty:
+                    print '{0}- {1}'.format((indent + 4) * ' ', tty)
+        for node in sorted(self.values(), key=lambda x: x.fs_name):
+            node.printtree(indent + 2)
 
-class USB(Container, FSLocation, ReprMixin):
+
+class AggregatedInterfaces(object):
+
+    def aggregated_interfaces(self, tty=False):
+        def aggregate(node, ifaces):
+            for child in node.values():
+                if isinstance(child, InterfaceProvider):
+                    for iface in child.interfaces:
+                        if tty and iface.tty is None:
+                            continue
+                        ifaces.append(iface)
+                aggregate(child, ifaces)
+        ifaces = []
+        aggregate(self, ifaces)
+        return ifaces
+
+
+class USB(Container, FSLocation, AggregatedInterfaces, ReprMixin):
     """Object representing USB filsystem root.
     """
 
@@ -174,6 +207,14 @@ class USB(Container, FSLocation, ReprMixin):
         if not os.path.isdir(bus_path):
             raise KeyError(key)
         return Bus(name=key, parent=self, fs_path=bus_path)
+
+    def __repr__(self):
+        return '<{0}.{1} [{2}] at {3}>'.format(
+            self.__module__,
+            self.__class__.__name__,
+            self.fs_path,
+            id(self)
+        )
 
 
 class InterfaceProvider(Container, FSLocation):
@@ -326,6 +367,19 @@ class Interface(FileAttributes, ReprMixin):
         if not os.path.isdir(fs_path):
             raise ValueError('Invalid path given')
         self.fs_path = fs_path
+
+    @property
+    def tty(self):
+        def match_tty(path):
+            for child in os.listdir(path):
+                if not child.startswith("tty"):
+                    continue
+                # final tty device
+                if child != 'tty':
+                    return child
+                # search in tty sub directory
+                return match_tty(os.path.join(path, child))
+        return match_tty(self.fs_path)
 
 
 ###############################################################################

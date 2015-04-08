@@ -76,7 +76,7 @@ USB::
 
     >>> usb = USB(fs_path=test_data_1_dir)
     >>> usb
-    <usbid.structure.USB [devices] at ...>
+    <usbid.structure.USB [/.../test_1/sys/bus/usb/devices] at ...>
 
     >>> usb.fs_path
     '.../test_1/sys/bus/usb/devices'
@@ -316,3 +316,129 @@ Port::
     ('modalias', 'usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00'), 
     ('supports_autosuspend', '1'), 
     ('uevent', 'DEVTYPE=usb_interface\nDRIVER=ftdi_sio\nPRODUCT=403/6001/600\nTYPE=0/0/0\nINTERFACE=255/255/255\nMODALIAS=usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00')]
+
+Tree::
+
+    >>> usb.printtree()
+    <usbid.structure.USB [/.../test_1/sys/bus/usb/devices] at ...>
+      <usbid.structure.Bus [usb1] at ...>
+          - Linux 3.13.0-48-generic ehci_hcd
+          - EHCI Host Controller
+        <usbid.structure.Interface [1-0:1.0] at ...>
+        <usbid.structure.Port [1-1] at ...>
+          <usbid.structure.Interface [1-1:1.0] at ...>
+          <usbid.structure.Port [1-1.2] at ...>
+              - USB Optical Mouse
+            <usbid.structure.Interface [1-1.2:1.0] at ...>
+          <usbid.structure.Port [1-1.3] at ...>
+              - Auth
+              - Biometric Coprocessor
+            <usbid.structure.Interface [1-1.3:1.0] at ...>
+          <usbid.structure.Port [1-1.4] at ...>
+              - Broadcom Corp
+              - BCM20702A0
+            <usbid.structure.Interface [1-1.4:1.0] at ...>
+            <usbid.structure.Interface [1-1.4:1.1] at ...>
+            <usbid.structure.Interface [1-1.4:1.2] at ...>
+            <usbid.structure.Interface [1-1.4:1.3] at ...>
+          <usbid.structure.Port [1-1.6] at ...>
+              - SunplusIT INC.
+              - Integrated Camera
+            <usbid.structure.Interface [1-1.6:1.0] at ...>
+            <usbid.structure.Interface [1-1.6:1.1] at ...>
+      <usbid.structure.Bus [usb2] at ...>
+          - Linux 3.13.0-48-generic ehci_hcd
+          - EHCI Host Controller
+        <usbid.structure.Interface [2-0:1.0] at ...>
+        <usbid.structure.Port [2-1] at ...>
+          <usbid.structure.Interface [2-1:1.0] at ...>
+      <usbid.structure.Bus [usb3] at ...>
+          - Linux 3.13.0-48-generic xhci_hcd
+          - xHCI Host Controller
+        <usbid.structure.Interface [3-0:1.0] at ...>
+        <usbid.structure.Port [3-2] at ...>
+          <usbid.structure.Interface [3-2:1.0] at ...>
+          <usbid.structure.Port [3-2.1] at ...>
+              - FTDI
+              - FT232R USB UART
+            <usbid.structure.Interface [3-2.1:1.0] at ...>
+              - ttyUSB0
+          <usbid.structure.Port [3-2.2] at ...>
+              - FTDI
+              - FT232R USB UART
+            <usbid.structure.Interface [3-2.2:1.0] at ...>
+              - ttyUSB1
+          <usbid.structure.Port [3-2.3] at ...>
+              - FTDI
+              - FT232R USB UART
+            <usbid.structure.Interface [3-2.3:1.0] at ...>
+              - ttyUSB2
+          <usbid.structure.Port [3-2.4] at ...>
+              - FTDI
+              - FT232R USB UART
+            <usbid.structure.Interface [3-2.4:1.0] at ...>
+              - ttyUSB3
+        <usbid.structure.Port [3-4] at ...>
+            - Lenovo
+            - H5321 gw
+          <usbid.structure.Interface [3-4:1.0] at ...>
+          <usbid.structure.Interface [3-4:1.1] at ...>
+            - ttyACM0
+          <usbid.structure.Interface [3-4:1.2] at ...>
+          <usbid.structure.Interface [3-4:1.3] at ...>
+            - ttyACM1
+          <usbid.structure.Interface [3-4:1.4] at ...>
+          <usbid.structure.Interface [3-4:1.5] at ...>
+          <usbid.structure.Interface [3-4:1.6] at ...>
+          <usbid.structure.Interface [3-4:1.7] at ...>
+          <usbid.structure.Interface [3-4:1.8] at ...>
+          <usbid.structure.Interface [3-4:1.9] at ...>
+            - ttyACM2
+      <usbid.structure.Bus [usb4] at ...>
+          - Linux 3.13.0-48-generic xhci_hcd
+          - xHCI Host Controller
+        <usbid.structure.Interface [4-0:1.0] at ...>
+
+    >>> sorted(usb.aggregated_interfaces(), key=lambda x: x.fs_path)
+    [<usbid.structure.Interface [1-0:1.0] at ...>, 
+    <usbid.structure.Interface [1-1.2:1.0] at ...>, 
+    <usbid.structure.Interface [1-1.3:1.0] at ...>, 
+    <usbid.structure.Interface [1-1.4:1.0] at ...>, 
+    <usbid.structure.Interface [1-1.4:1.1] at ...>, 
+    <usbid.structure.Interface [1-1.4:1.2] at ...>, 
+    <usbid.structure.Interface [1-1.4:1.3] at ...>, 
+    <usbid.structure.Interface [1-1.6:1.0] at ...>, 
+    <usbid.structure.Interface [1-1.6:1.1] at ...>, 
+    <usbid.structure.Interface [1-1:1.0] at ...>, 
+    <usbid.structure.Interface [2-0:1.0] at ...>, 
+    <usbid.structure.Interface [2-1:1.0] at ...>, 
+    <usbid.structure.Interface [3-0:1.0] at ...>, 
+    <usbid.structure.Interface [3-2.1:1.0] at ...>, 
+    <usbid.structure.Interface [3-2.2:1.0] at ...>, 
+    <usbid.structure.Interface [3-2.3:1.0] at ...>, 
+    <usbid.structure.Interface [3-2.4:1.0] at ...>, 
+    <usbid.structure.Interface [3-2:1.0] at ...>, 
+    <usbid.structure.Interface [3-4:1.0] at ...>, 
+    <usbid.structure.Interface [3-4:1.1] at ...>, 
+    <usbid.structure.Interface [3-4:1.2] at ...>, 
+    <usbid.structure.Interface [3-4:1.3] at ...>, 
+    <usbid.structure.Interface [3-4:1.4] at ...>, 
+    <usbid.structure.Interface [3-4:1.5] at ...>, 
+    <usbid.structure.Interface [3-4:1.6] at ...>, 
+    <usbid.structure.Interface [3-4:1.7] at ...>, 
+    <usbid.structure.Interface [3-4:1.8] at ...>, 
+    <usbid.structure.Interface [3-4:1.9] at ...>, 
+    <usbid.structure.Interface [4-0:1.0] at ...>]
+
+    >>> tty_ifaces = sorted(
+    ...     usb.aggregated_interfaces(tty=True),
+    ...     key=lambda x: x.fs_path
+    ... )
+    >>> ['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]
+    ['/.../test_1/sys/bus/usb/devices/usb3/3-2/3-2.1/3-2.1:1.0 - ttyUSB0', 
+    '/.../test_1/sys/bus/usb/devices/usb3/3-2/3-2.2/3-2.2:1.0 - ttyUSB1', 
+    '/.../test_1/sys/bus/usb/devices/usb3/3-2/3-2.3/3-2.3:1.0 - ttyUSB2', 
+    '/.../test_1/sys/bus/usb/devices/usb3/3-2/3-2.4/3-2.4:1.0 - ttyUSB3', 
+    '/.../test_1/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0', 
+    '/.../test_1/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1', 
+    '/.../test_1/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
