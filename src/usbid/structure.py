@@ -147,6 +147,8 @@ class FileAttributes(FSLocation):
 
 
 class ReprMixin(object):
+    """Mixin for objects inside the USB filesystem tree for debugging.
+    """
 
     def __repr__(self):
         return '<{0}.{1} [{2}] at {3}>'.format(
@@ -174,7 +176,23 @@ class ReprMixin(object):
             node.printtree(indent + 2)
 
 
-class AggregatedInterfaces(object):
+class InterfaceProvider(Container, FSLocation):
+    """Mixin for objects providing USB interfaces.
+    """
+
+    @property
+    def interfaces(self):
+        ifaces = []
+        for child in os.listdir(self.fs_path):
+            if IS_INTERFACE.match(child):
+                iface_path = os.path.join(self.fs_path, child)
+                ifaces.append(Interface(fs_path=iface_path))
+        return ifaces
+
+
+class InterfaceAggregator(object):
+    """Mixin for objects providing USB interface aggregation.
+    """
 
     def aggregated_interfaces(self, tty=False):
         def aggregate(node, ifaces):
@@ -190,7 +208,7 @@ class AggregatedInterfaces(object):
         return ifaces
 
 
-class USB(Container, FSLocation, AggregatedInterfaces, ReprMixin):
+class USB(Container, FSLocation, InterfaceAggregator, ReprMixin):
     """Object representing USB filsystem root.
     """
 
@@ -215,20 +233,6 @@ class USB(Container, FSLocation, AggregatedInterfaces, ReprMixin):
             self.fs_path,
             id(self)
         )
-
-
-class InterfaceProvider(Container, FSLocation):
-    """Mixin for objects providing USB interfaces.
-    """
-
-    @property
-    def interfaces(self):
-        ifaces = []
-        for child in os.listdir(self.fs_path):
-            if IS_INTERFACE.match(child):
-                iface_path = os.path.join(self.fs_path, child)
-                ifaces.append(Interface(fs_path=iface_path))
-        return ifaces
 
 
 class Bus(FileAttributes, InterfaceProvider, ReprMixin):
