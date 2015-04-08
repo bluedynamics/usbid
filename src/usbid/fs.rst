@@ -357,7 +357,7 @@ Interface
     ValueError: Invalid path given
 
 
-Test data 1 Tree
+Test data tree 1
 ----------------
 
 ::
@@ -487,7 +487,7 @@ Test data 1 Tree
     '/.../1/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
 
 
-Test data 2 Tree
+Test data tree 2
 ----------------
 
 ::
@@ -524,7 +524,7 @@ Test data 2 Tree
     '/.../2/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
 
 
-Test data 3 Tree
+Test data tree 3
 ----------------
 
 ::
