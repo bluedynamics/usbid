@@ -69,21 +69,24 @@ FileAttributes::
 
 USB::
 
+    >>> test_data_1_dir = os.path.join(
+    ...     TEMPDIR, 'test_1', 'sys', 'bus', 'usb', 'devices')
+
     >>> from usbid.structure import USB
-    >>> usb = USB()
+    >>> usb = USB(fs_path=test_data_1_dir)
     >>> usb
     <usbid.structure.USB object at ...>
 
     >>> usb.fs_path
-    '/sys/bus/usb/devices'
+    '.../test_1/sys/bus/usb/devices'
 
     >>> usb.fs_name
     'devices'
 
     >>> usb.fs_parent
-    '/sys/bus/usb'
+    '.../test_1/sys/bus/usb'
 
-    >>> usb.keys()
+    >>> sorted(usb.keys())
     ['1', '2', '3', '4']
 
     >>> usb['0']
@@ -100,7 +103,7 @@ USB::
     <usbid.structure.Bus object at ...>, 
     <usbid.structure.Bus object at ...>]
 
-    >>> usb.items()
+    >>> sorted(usb.items())
     [('1', <usbid.structure.Bus object at ...>), 
     ('2', <usbid.structure.Bus object at ...>), 
     ('3', <usbid.structure.Bus object at ...>), 
@@ -170,7 +173,7 @@ Bus::
     ('serial', '0000:00:14.0'), 
     ('speed', '480'), 
     ('uevent', 'MAJOR=189\nMINOR=256\nDEVNAME=bus/usb/003/001\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=1d6b/2/313\nTYPE=9/0/1\nBUSNUM=003\nDEVNUM=001'), 
-    ('urbnum', '833'), 
+    ('urbnum', '884'), 
     ('version', '2.00')]
 
     >>> bus.interfaces
@@ -196,7 +199,7 @@ Port::
     <usbid.structure.Port object at ...>
 
     >>> port.fs_path
-    '/sys/bus/usb/devices/usb3/3-2'
+    '.../test_1/sys/bus/usb/devices/usb3/3-2'
 
     >>> port.fs_name
     '3-2'
@@ -215,8 +218,8 @@ Port::
     ('bNumConfigurations', '1'), 
     ('bNumInterfaces', '1'), 
     ('busnum', '3'), 
-    ('dev', '189:372'), 
-    ('devnum', '117'), 
+    ('dev', '189:378'), 
+    ('devnum', '123'), 
     ('devpath', '2'), 
     ('idProduct', '005a'), 
     ('idVendor', '0409'), 
@@ -228,7 +231,7 @@ Port::
     ('removable', 'removable'), 
     ('serial', None), 
     ('speed', '480'), 
-    ('uevent', 'MAJOR=189\nMINOR=372\nDEVNAME=bus/usb/003/117\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=409/5a/100\nTYPE=9/0/1\nBUSNUM=003\nDEVNUM=117'), 
+    ('uevent', 'MAJOR=189\nMINOR=378\nDEVNAME=bus/usb/003/123\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=409/5a/100\nTYPE=9/0/1\nBUSNUM=003\nDEVNUM=123'), 
     ('urbnum', '47'), 
     ('version', '2.00')]
 
@@ -248,7 +251,7 @@ Port::
     ('supports_autosuspend', '1'), 
     ('uevent', 'DEVTYPE=usb_interface\nDRIVER=hub\nPRODUCT=409/5a/100\nTYPE=9/0/1\nINTERFACE=9/0/0\nMODALIAS=usb:v0409p005Ad0100dc09dsc00dp01ic09isc00ip00in00')]
 
-    >>> port.keys()
+    >>> sorted(port.keys())
     ['1', '2', '3', '4']
 
     >>> port['0']
@@ -261,7 +264,7 @@ Port::
     <usbid.structure.Port object at ...>
 
     >>> sub_port.fs_path
-    '/sys/bus/usb/devices/usb3/3-2/3-2.1'
+    '.../test_1/sys/bus/usb/devices/usb3/3-2/3-2.1'
 
     >>> sub_port.fs_name
     '3-2.1'
@@ -280,8 +283,8 @@ Port::
     ('bNumConfigurations', '1'), 
     ('bNumInterfaces', '1'), 
     ('busnum', '3'), 
-    ('dev', '189:373'), 
-    ('devnum', '118'), 
+    ('dev', '189:379'), 
+    ('devnum', '124'), 
     ('devpath', '2.1'), 
     ('idProduct', '6001'), 
     ('idVendor', '0403'), 
@@ -293,7 +296,7 @@ Port::
     ('removable', 'unknown'), 
     ('serial', 'A7022OOQ'), 
     ('speed', '12'), 
-    ('uevent', 'MAJOR=189\nMINOR=373\nDEVNAME=bus/usb/003/118\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=403/6001/600\nTYPE=0/0/0\nBUSNUM=003\nDEVNUM=118'), 
+    ('uevent', 'MAJOR=189\nMINOR=379\nDEVNAME=bus/usb/003/124\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=403/6001/600\nTYPE=0/0/0\nBUSNUM=003\nDEVNUM=124'), 
     ('urbnum', '15'), 
     ('version', '2.00')]
 
