@@ -50,6 +50,20 @@ FileAttributes::
     >>> test_file_attributes.file_attribute
     'File attribute value'
 
+    >>> test_file_attributes.no_attribute
+    Traceback (most recent call last):
+      ...
+    AttributeError: 'TestFileAttributes' object has no attribute 'no_attribute'
+
+    >>> def get_file_attribues(obj):
+    ...    ret = []
+    ...    for attr_name in obj.__file_attributes__:
+    ...        ret.append((attr_name, getattr(obj, attr_name)))
+    ...    return ret
+
+    >>> get_file_attribues(test_file_attributes)
+    [('file_attribute', 'File attribute value')]
+
     >>> import shutil
     >>> shutil.rmtree(tempdir)
 
@@ -59,6 +73,15 @@ USB::
     >>> usb = USB()
     >>> usb
     <usbid.structure.USB object at ...>
+
+    >>> usb.fs_path
+    '/sys/bus/usb/devices'
+
+    >>> usb.fs_name
+    'devices'
+
+    >>> usb.fs_parent
+    '/sys/bus/usb'
 
     >>> usb.keys()
     ['1', '2', '3', '4']
@@ -122,100 +145,132 @@ Bus::
     >>> interfaces
     [<usbid.structure.Interface object at ...>]
 
-    >>> bus.authorized
-    '1'
+    >>> get_file_attribues(bus)
+    [('authorized', '1'), 
+    ('authorized_default', '1'), 
+    ('avoid_reset_quirk', '0'), 
+    ('bcdDevice', '0313'), 
+    ('bConfigurationValue', '1'), 
+    ('bDeviceClass', '09'), 
+    ('bDeviceProtocol', '01'), 
+    ('bDeviceSubClass', '00'), 
+    ('bmAttributes', 'e0'), 
+    ('bMaxPacketSize0', '64'), 
+    ('bMaxPower', '0mA'), 
+    ('bNumConfigurations', '1'), 
+    ('bNumInterfaces', '1'), 
+    ('busnum', '3'), 
+    ('dev', '189:256'), 
+    ('devnum', '1'), 
+    ('devpath', '0'), 
+    ('idProduct', '0002'), 
+    ('idVendor', '1d6b'), 
+    ('ltm_capable', 'no'), 
+    ('manufacturer', 'Linux 3.13.0-48-generic xhci_hcd'), 
+    ('maxchild', '4'), 
+    ('product', 'xHCI Host Controller'), 
+    ('quirks', '0x0'), 
+    ('removable', 'unknown'), 
+    ('serial', '0000:00:14.0'), 
+    ('speed', '480'), 
+    ('uevent', 'MAJOR=189\nMINOR=256\nDEVNAME=bus/usb/003/001\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=1d6b/2/313\nTYPE=9/0/1\nBUSNUM=003\nDEVNUM=001'), 
+    ('urbnum', '833'), 
+    ('version', '2.00')]
 
-    >>> bus.authorized_default
-    '1'
+Port::
 
-    >>> bus.avoid_reset_quirk
-    '0'
+    >>> port = bus['2']
+    >>> port
+    <usbid.structure.Port object at ...>
 
-    >>> bus.bcdDevice
-    '0313'
+    >>> port.fs_path
+    '/sys/bus/usb/devices/usb3/3-2'
 
-    >>> bus.bConfigurationValue
-    '1'
+    >>> port.fs_name
+    '3-2'
 
-    >>> bus.bDeviceClass
-    '09'
+    >>> port.interfaces
+    [<usbid.structure.Interface object at ...>]
 
-    >>> bus.bDeviceProtocol
-    '01'
+    >>> get_file_attribues(port)
+    [('authorized', '1'), 
+    ('avoid_reset_quirk', '0'), 
+    ('bcdDevice', '0100'), 
+    ('bConfigurationValue', '1'), 
+    ('bDeviceClass', '09'), 
+    ('bDeviceProtocol', '01'), 
+    ('bDeviceSubClass', '00'), 
+    ('bmAttributes', 'e0'), 
+    ('bMaxPacketSize0', '64'), 
+    ('bMaxPower', '100mA'), 
+    ('bNumConfigurations', '1'), 
+    ('bNumInterfaces', '1'), 
+    ('busnum', '3'), 
+    ('dev', '189:372'), 
+    ('devnum', '117'), 
+    ('devpath', '2'), 
+    ('idProduct', '005a'), 
+    ('idVendor', '0409'), 
+    ('ltm_capable', 'no'), 
+    ('manufacturer', None), 
+    ('maxchild', '4'), 
+    ('product', None), 
+    ('quirks', '0x0'), 
+    ('removable', 'removable'), 
+    ('serial', None), 
+    ('speed', '480'), 
+    ('uevent', 'MAJOR=189\nMINOR=372\nDEVNAME=bus/usb/003/117\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=409/5a/100\nTYPE=9/0/1\nBUSNUM=003\nDEVNUM=117'), 
+    ('urbnum', '47'), 
+    ('version', '2.00')]
 
-    >>> bus.bDeviceSubClass
-    '00'
+    >>> port.keys()
+    ['1', '2', '3', '4']
 
-    >>> bus.bmAttributes
-    'e0'
+    >>> port['0']
+    Traceback (most recent call last):
+      ...
+    KeyError: '0'
 
-    >>> bus.bMaxPacketSize0
-    '64'
+    >>> sub_port = port['1']
+    >>> sub_port
+    <usbid.structure.Port object at ...>
 
-    >>> bus.bMaxPower
-    '0mA'
+    >>> sub_port.fs_path
+    '/sys/bus/usb/devices/usb3/3-2/3-2.1'
 
-    >>> bus.bNumConfigurations
-    '1'
+    >>> sub_port.fs_name
+    '3-2.1'
 
-    >>> bus.bNumInterfaces
-    '1'
+    >>> sub_port.interfaces
+    [<usbid.structure.Interface object at ...>]
 
-    >>> bus.busnum
-    '3'
-
-    >>> bus.dev
-    '189:256'
-
-    >>> bus.devnum
-    '1'
-
-    >>> bus.devpath
-    '0'
-
-    >>> bus.idProduct
-    '0002'
-
-    >>> bus.idVendor
-    '1d6b'
-
-    >>> bus.ltm_capable
-    'no'
-
-    >>> bus.manufacturer
-    'Linux 3.13.0-48-generic xhci_hcd'
-
-    >>> bus.maxchild
-    '4'
-
-    >>> bus.product
-    'xHCI Host Controller'
-
-    >>> bus.quirks
-    '0x0'
-
-    >>> bus.removable
-    'unknown'
-
-    >>> bus.serial
-    '0000:00:14.0'
-
-    >>> bus.speed
-    '480'
-
-    >>> bus.uevent.split('\n')
-    ['MAJOR=189', 
-    'MINOR=256', 
-    'DEVNAME=bus/usb/003/001', 
-    'DEVTYPE=usb_device', 
-    'DRIVER=usb', 
-    'PRODUCT=1d6b/2/313', 
-    'TYPE=9/0/1', 
-    'BUSNUM=003', 
-    'DEVNUM=001']
-
-    >>> bus.urbnum
-    '833'
-
-    >>> bus.version
-    '2.00'
+    >>> get_file_attribues(sub_port)
+    [('authorized', '1'), 
+    ('avoid_reset_quirk', '0'), 
+    ('bcdDevice', '0600'), 
+    ('bConfigurationValue', '1'), 
+    ('bDeviceClass', '00'), 
+    ('bDeviceProtocol', '00'), 
+    ('bDeviceSubClass', '00'), 
+    ('bmAttributes', 'a0'), 
+    ('bMaxPacketSize0', '8'), 
+    ('bMaxPower', '90mA'), 
+    ('bNumConfigurations', '1'), 
+    ('bNumInterfaces', '1'), 
+    ('busnum', '3'), 
+    ('dev', '189:373'), 
+    ('devnum', '118'), 
+    ('devpath', '2.1'), 
+    ('idProduct', '6001'), 
+    ('idVendor', '0403'), 
+    ('ltm_capable', 'no'), 
+    ('manufacturer', 'FTDI'), 
+    ('maxchild', '0'), 
+    ('product', 'FT232R USB UART'), 
+    ('quirks', '0x0'), 
+    ('removable', 'unknown'), 
+    ('serial', 'A7022OOQ'), 
+    ('speed', '12'), 
+    ('uevent', 'MAJOR=189\nMINOR=373\nDEVNAME=bus/usb/003/118\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=403/6001/600\nTYPE=0/0/0\nBUSNUM=003\nDEVNUM=118'), 
+    ('urbnum', '15'), 
+    ('version', '2.00')]

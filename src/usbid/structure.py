@@ -81,11 +81,15 @@ import re
 USB_FS_ROOT = '/sys/bus/usb/devices'
 IS_BUS = re.compile("^usb\d$")
 IS_BUS_PORT = re.compile("^\d-\d$")
-IS_SUB_PORT = re.compile("")
-IS_INTERFACE = re.compile("^\d-\d*:\d.\d$")
+IS_SUB_PORT = re.compile("^\d-\d(\.\d)*$")
+IS_INTERFACE = re.compile("^\d-\d(\.\d)*:\d.\d$")
 
 
 class Container(object):
+    """Mixin for container objects.
+    """
+    name = None
+    parent = None
 
     def keys(self):
         return list(self.__iter__())
@@ -109,13 +113,28 @@ class Container(object):
         raise NotImplementedError()
 
 
-class FileAttributes(object):
-    """Mixin for attributes stored in files. A single file represents a single
-    attribute where the file name is the attribute name and the file content is
-    the attribute value.
+class FSLocation(object):
+    """Mixin for objects with a file system location.
+    """
+    fs_path = None
+
+    @property
+    def fs_name(self):
+        if self.fs_path.find(os.path.sep) > -1:
+            return self.fs_path[self.fs_path.rfind(os.path.sep) + 1:]
+
+    @property
+    def fs_parent(self):
+        if self.fs_path.find(os.path.sep) > -1:
+            return self.fs_path[:self.fs_path.rfind(os.path.sep)]
+
+
+class FileAttributes(FSLocation):
+    """Mixin for objects handling attributes stored in files. A single file
+    represents a single attribute where the file name is the attribute name
+    and the file content is the attribute value.
     """
     __file_attributes__ = []
-    fs_path = None
 
     def __getattribute__(self, name):
         if name in object.__getattribute__(self, '__file_attributes__'):
@@ -127,7 +146,9 @@ class FileAttributes(object):
         return object.__getattribute__(self, name)
 
 
-class USB(Container):
+class USB(Container, FSLocation):
+    """Object representing USB filsystem root.
+    """
 
     def __init__(self, fs_path=USB_FS_ROOT):
         self.fs_path = fs_path
@@ -141,10 +162,26 @@ class USB(Container):
         bus_path = os.path.join(self.fs_path, 'usb{0}'.format(key))
         if not os.path.isdir(bus_path):
             raise KeyError(key)
-        return Bus(name=key, fs_path=bus_path)
+        return Bus(name=key, parent=self, fs_path=bus_path)
 
 
-class Bus(FileAttributes, Container):
+class InterfaceProvider(Container, FSLocation):
+    """Mixin for objects providing USB interfaces.
+    """
+
+    @property
+    def interfaces(self):
+        ifaces = []
+        for child in os.listdir(self.fs_path):
+            if IS_INTERFACE.match(child):
+                iface_path = os.path.join(self.fs_path, child)
+                ifaces.append(Interface(fs_path=iface_path))
+        return ifaces
+
+
+class Bus(FileAttributes, InterfaceProvider):
+    """Object representing a USB bus.
+    """
     __file_attributes__ = [
         'authorized',
         'authorized_default',
@@ -178,10 +215,11 @@ class Bus(FileAttributes, Container):
         'version',
     ]
 
-    def __init__(self, name, fs_path):
+    def __init__(self, name, parent, fs_path):
         if not os.path.isdir(fs_path):
             raise ValueError('Invalid path given')
         self.name = name
+        self.parent = parent
         self.fs_path = fs_path
 
     def __iter__(self):
@@ -196,28 +234,69 @@ class Bus(FileAttributes, Container):
         )
         if not os.path.isdir(port_path):
             raise KeyError(key)
-        return Port(name=key, fs_path=port_path)
-
-    @property
-    def interfaces(self):
-        ifaces = []
-        for child in os.listdir(self.fs_path):
-            if IS_INTERFACE.match(child):
-                iface_path = os.path.join(self.fs_path, child)
-                ifaces.append(Interface(fs_path=iface_path))
-        return ifaces
+        return Port(name=key, parent=self, fs_path=port_path)
 
 
-class Port(object):
+class Port(FileAttributes, InterfaceProvider):
+    """Object representing a USB port.
+    """
+    __file_attributes__ = [
+        'authorized',
+        'avoid_reset_quirk',
+        'bcdDevice',
+        'bConfigurationValue',
+        'bDeviceClass',
+        'bDeviceProtocol',
+        'bDeviceSubClass',
+        'bmAttributes',
+        'bMaxPacketSize0',
+        'bMaxPower',
+        'bNumConfigurations',
+        'bNumInterfaces',
+        'busnum',
+        'dev',
+        'devnum',
+        'devpath',
+        'idProduct',
+        'idVendor',
+        'ltm_capable',
+        'manufacturer',
+        'maxchild',
+        'product',
+        'quirks',
+        'removable',
+        'serial',
+        'speed',
+        'uevent',
+        'urbnum',
+        'version',
+    ]
 
-    def __init__(self, name, fs_path):
+    def __init__(self, name, parent, fs_path):
         if not os.path.isdir(fs_path):
             raise ValueError('Invalid path given')
         self.name = name
+        self.parent = parent
         self.fs_path = fs_path
 
+    def __iter__(self):
+        for child in os.listdir(self.fs_path):
+            if IS_SUB_PORT.match(child):
+                yield child[child.rfind('.') + 1:]
 
-class Interface(object):
+    def __getitem__(self, key):
+        port_path = os.path.join(
+            self.fs_path,
+            '{0}.{1}'.format(self.fs_name, key)
+        )
+        if not os.path.isdir(port_path):
+            raise KeyError(key)
+        return Port(name=key, parent=self, fs_path=port_path)
+
+
+class Interface(FileAttributes):
+    """Object representing a USB interface.
+    """
 
     def __init__(self, fs_path):
         if not os.path.isdir(fs_path):
