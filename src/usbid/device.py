@@ -32,7 +32,9 @@ The interfaces are indicated by suffixes having this form:
     :config.interface
 
 That is, a ':' followed by the configuration number followed by '.' followed
-by the interface number. In the above example, each of the devices is using configuration 1 and this configuration has only a single interface, number 0. So the interfaces show up as;
+by the interface number. In the above example, each of the devices is using
+configuration 1 and this configuration has only a single interface, number 0.
+So the interfaces show up as;
 
     1-1:1.0        1-1.3:1.0        1-1.3.1:1.0
 
