@@ -156,7 +156,7 @@ class InterfaceProvider(Container, FSLocation):
         for child in os.listdir(self.fs_path):
             if IS_INTERFACE.match(child):
                 iface_path = os.path.join(self.fs_path, child)
-                ifaces.append(Interface(fs_path=iface_path))
+                ifaces.append(Interface(parent=self, fs_path=iface_path))
         return ifaces
 
 
@@ -203,6 +203,17 @@ class USB(Container, FSLocation, InterfaceAggregator, ReprMixin):
             self.fs_path,
             id(self)
         )
+
+    def get_interface(self, fs_name):
+        port_path = list(reversed(
+            fs_name.replace('-', '.').split(':')[0].split('.')
+        ))
+        node = self
+        while port_path:
+            node = node[port_path.pop()]
+        for iface in node.interfaces:
+            if iface.fs_name == fs_name:
+                return iface
 
 
 class Bus(FileAttributes, InterfaceProvider, ReprMixin):
@@ -336,10 +347,19 @@ class Interface(FileAttributes, ReprMixin):
         'uevent',
     ]
 
-    def __init__(self, fs_path):
+    def __init__(self, parent, fs_path):
         if not os.path.isdir(fs_path):
             raise ValueError('Invalid path given')
+        self.parent = parent
         self.fs_path = fs_path
+
+    @property
+    def manufacturer(self):
+        return self.parent.manufacturer
+
+    @property
+    def product(self):
+        return self.parent.product
 
     @property
     def tty(self):

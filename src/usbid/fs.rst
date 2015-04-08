@@ -351,10 +351,40 @@ Interface
 ::
 
     >>> from usbid import Interface
-    >>> Interface(fs_path='inexistent')
+    >>> Interface(parent=None, fs_path='inexistent')
     Traceback (most recent call last):
       ...
     ValueError: Invalid path given
+
+    >>> port = usb['3']['2']['1']
+    >>> port.interfaces
+    [<usbid.fs.Interface [3-2.1:1.0] at ...>]
+
+    >>> interface = port.interfaces[0]
+    >>> interface.parent
+    <usbid.fs.Port [3-2.1] at ...>
+
+    >>> interface.fs_name
+    '3-2.1:1.0'
+
+    >>> interface.manufacturer
+    'FTDI'
+
+    >>> interface.product
+    'FT232R USB UART'
+
+    >>> interface = usb.get_interface(interface.fs_name)
+    >>> interface
+    <usbid.fs.Interface [3-2.1:1.0] at ...>
+
+    >>> interface.parent
+    <usbid.fs.Port [3-2.1] at ...>
+
+    >>> interface.manufacturer
+    'FTDI'
+
+    >>> interface.product
+    'FT232R USB UART'
 
 
 Test data tree 1
