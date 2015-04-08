@@ -42,36 +42,6 @@ A hub will never have more than a single interface; that's part of the USB
 spec. But other devices can and do have multiple interfaces (and sometimes
 multiple configurations). Each interface gets its own entry in sysfs and can
 have its own driver.
-
-Examples
---------
-
-idProduct: 6010
-idVendor: 0403
-Product Name: FT2232C Dual USB-UART/FIFO IC
-Vendor Name: Future Technology Devices International, Ltd
-
-# ls  /sys/bus/usb/devices/
-3-2       -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2
-3-2:1.0   -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2:1.0
-3-2:1.1   -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2:1.1
-
-idProduct: 6001
-idVendor: 0403
-Product Name: FT232 USB-Serial (UART) IC
-Vendor Name: Future Technology Devices International, Ltd
-
-# ls  /sys/bus/usb/devices/
-3-2       -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2
-3-2.1     -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.1
-3-2:1.0   -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2:1.0
-3-2.1:1.0 -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.1/3-2.1:1.0
-3-2.2     -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.2
-3-2.2:1.0 -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.2/3-2.2:1.0
-3-2.3     -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.3
-3-2.3:1.0 -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.3/3-2.3:1.0
-3-2.4     -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.4
-3-2.4:1.0 -> ../../../devices/pci0000:00/0000:00:14.0/usb3/3-2/3-2.4/3-2.4:1.0
 """
 
 import os
