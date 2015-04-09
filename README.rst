@@ -13,9 +13,11 @@ to gain information of the physical USB bus structure on a Linux System.
 The USB file system (Taken from http://www.linux-usb.org/FAQ.html)
 ------------------------------------------------------------------
 
-# ls  /sys/bus/usb/devices/
-1-0:1.0      1-1.3        1-1.3.1:1.0  1-1:1.0
-1-1          1-1.3.1      1-1.3:1.0    usb1
+::
+
+    # ls  /sys/bus/usb/devices/
+    1-0:1.0      1-1.3        1-1.3.1:1.0  1-1:1.0
+    1-1          1-1.3.1      1-1.3:1.0    usb1
 
 The names that begin with "usb" refer to USB controllers. More accurately, they
 refer to the "root hub" associated with each controller. The number is the USB
@@ -26,7 +28,7 @@ bus number. In the example there is only one controller, so its bus is number
 just like the interface in an actual hub an almost every respect; see below.
 
 All the other entries refer to genuine USB devices and their interfaces.
-The devices are named by a scheme like this:
+The devices are named by a scheme like this::
 
     bus-port.port.port ...
 
@@ -38,14 +40,14 @@ For example, "1-1" is a device plugged into bus 1, port 1. It happens to be a
 hub, and "1-1.3" is the device plugged into port 3 of that hub. That device is
 another hub, and "1-1.3.1" is the device plugged into its port 1.
 
-The interfaces are indicated by suffixes having this form:
+The interfaces are indicated by suffixes having this form::
 
     :config.interface
 
 That is, a ':' followed by the configuration number followed by '.' followed
 by the interface number. In the above example, each of the devices is using
 configuration 1 and this configuration has only a single interface, number 0.
-So the interfaces show up as;
+So the interfaces show up as::
 
     1-1:1.0        1-1.3:1.0        1-1.3.1:1.0
 
@@ -126,6 +128,17 @@ For debugging you can print the USB structure.
             - FT232R USB UART
           <usbid.fs.Interface [1-1:1.0] at ...>
             - ttyUSB0
+
+
+Coverage report
+===============
+
+::
+
+    lines   cov%   module
+        4   100%   usbid.__init__
+      248   100%   usbid.fs
+       29   100%   usbid.tests
 
 
 Source Code
