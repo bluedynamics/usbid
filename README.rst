@@ -7,7 +7,7 @@ to gain information of the physical USB bus structure on a Linux System.
 .. note::
 
     Version 2.0 of this package is a complete rewrite. If you are using version
-    1.0.x of this package, you're encouraged adopting the nw API.
+    1.0.x of this package, you're encouraged adopting the new API.
 
 
 The USB file system (Taken from http://www.linux-usb.org/FAQ.html)
