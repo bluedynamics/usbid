@@ -5,7 +5,7 @@ from setuptools import find_packages
 
 version = '2.0.dev0'
 shortdesc = \
-'API to get information about USB devices'
+'USB file system API for Linux'
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 longdesc += open(os.path.join(os.path.dirname(__file__), 'HISTORY.rst')).read()
 longdesc += open(os.path.join(os.path.dirname(__file__), 'LICENSE.rst')).read()

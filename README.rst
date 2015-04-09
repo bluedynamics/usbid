@@ -1,208 +1,131 @@
-USB devices and information API
+USB file system abstraction API
 ===============================
 
-This module helps to get infos for your connected usb devices, and find out
-where they are mounted on your fs. It basically consists of two parts:
+This module provides a USB file system abstraction API which can be used
+to gain information of the physical USB bus structure on a Linux System.
 
-usbinfo
-    get information about usbdevices from its identifiers.
+.. note::
 
-devices
-    get a tree of the connected devices.
-
-
-usbinfo
--------
-
-Get information about USB-devices from identifiers based on the
-`Linux USB information file <http://www.linux-usb.org/usb.ids>`_
-
-In the data folder there is this file named ``usb.ids`` containing different
-information about usb devices.
-
-usage::
-    
-    >>> from usbid.usbinfo import USBINFO
-    >>> USBINFO
-
-On ``USBINFO`` the following properties are providing information
-
-``usb_ids``
-    dict of usbids with key as vendor id and value as a tuple
-    consisting of vendor name and dict of key as device id and value
-    as device name.
-
-``device_classes``
-    dict of device classes with key as class id and value as a tuple
-    consisting of class name and dict of key as subclass id and value
-    as a tuple consisting of subclass name and dict of key as protocol
-    id and value as protocol name.
-
-    example::
-
-        '09': ('Hub',
-            {'00': ('Unused',
-                {'00': 'Full speed (or root) hub',
-                 '01': 'Single TT',
-                 '02': 'TT per port'})})
-
-``audio_class_terminal_types``
-    dict of audio class terminal types with key as terminal type and
-    value as terminal name.
-
-``hid_descriptor_types``
-    dict of HID descriptor types with key as HID descriptor type and
-    value as descriptor type name.
-
-``hid_descriptor_item_types``
-    dict of HID descriptor item types with key as item type and
-    value as item type name.
-
-``physical_descriptor_bias_types``
-    dict of BIAS item types with key as BIAS item type and
-    value as item type name.
-
-``physical_descriptor_item_types``
-    dict of PHY item types with key as PHY item type and
-    value as item type name.
-
-``hid_usages``
-    dict of HID usages with key as HID id and value as a tuple
-    consisting of  HID usage page name and a dict of key as hid usage
-    and value as hid usage name (i.e. a ``Magic Carpet Simulation Device``).
-
-``languages``
-    dict of languages with key as language id and value as a tuple
-    consisting of language name and a dict of key as dialect id and
-    value as dialect name
-
-``country_codes``
-    dict of codes with key as code id and value as a tuple
-    consisting of language name and a dict of key as dialect id and
-    value as dialect name.
-
-``video_class_terminal_types``
-    dict of video class terminal types with key as terminal type and
-    value as terminal type name.
-
-For further details lookup the ``usbinfo.py`` and ``usbinfo.rst`` to see how
-it can be used.
+    Version 2.0 of this package is a complete rewrite. If you are using version
+    1.0.x of this package, you're encouraged adopting the nw API.
 
 
-device
-------
+The USB file system (Taken from http://www.linux-usb.org/FAQ.html)
+------------------------------------------------------------------
 
-Devices are read from the Linux sys-fs. So this work only with Linux or any OS
-that provides the same sys-fs. Its tested with Debian based systems like Ubuntu
-and Linux-Mint and aims to work on Raspbian.
+# ls  /sys/bus/usb/devices/
+1-0:1.0      1-1.3        1-1.3.1:1.0  1-1:1.0
+1-1          1-1.3.1      1-1.3:1.0    usb1
 
-The USB devices are provided in a tree like they are connected to the computer.
-Each USB root hub is an own tree in the virtual ``usb_roots()`` dict.
-If another external hub is connected to the  root hub, it is a subtree as a
-node of the root hub. Actual devices are the  leafs, i.e a mouse, keyboard,
-serial adapter or magic carpet.
+The names that begin with "usb" refer to USB controllers. More accurately, they
+refer to the "root hub" associated with each controller. The number is the USB
+bus number. In the example there is only one controller, so its bus is number
+1. Hence the name "usb1".
 
-The roots object is a simple dict and all below are ``usbid.device.DeviceNode``
-objects. A ``DeviceNode`` is itself a read-only dict-like object.
+"1-0:1.0" is a special case. It refers to the root hub's interface. This acts
+just like the interface in an actual hub an almost every respect; see below.
 
-Example tree::
+All the other entries refer to genuine USB devices and their interfaces.
+The devices are named by a scheme like this:
 
-    .
-    ├── 1 root hub A
-    │   └── 1 external hub E1 
-    │       ├── 1 Mouse
-    │       ├── 2 Keyboard
-    │       └── 3 Audio 
-    │
-    ├── 2 root hub B
-    │   ├── 1 Magic Carpet
-    │   └── 2 Hard Disk
-    │ 
-    └── 3 root hub C
-        └── 1 external hub E2
-            └── 1 external hub E3
-                ├── 1 Serial Adapter S1 (ttyUSB1)
-                └── 2 Serial Adapter S2 (ttyUSB0)    
+    bus-port.port.port ...
 
-Import::
+In other words, the name starts with the bus number followed by a '-'. Then
+comes the sequence of port numbers for each of the intermediate hubs along the
+path to the device.
 
-    >>> from usbid.device import usb_roots
-    
-Get roots::
-    
-    >>> roots = usb_roots()
+For example, "1-1" is a device plugged into bus 1, port 1. It happens to be a
+hub, and "1-1.3" is the device plugged into port 3 of that hub. That device is
+another hub, and "1-1.3.1" is the device plugged into its port 1.
 
-Fetch one device by path::    
-    
-    >>> serial_s2 = roots[3][1][2]
+The interfaces are indicated by suffixes having this form:
 
-Look up info::
+    :config.interface
 
-    >>> print serial_s2
-    idProduct: 2303
-    idVendor: 067b
-    Product Name: PL2303 Serial Port
-    Vendor Name: Prolific Technology, Inc.
+That is, a ':' followed by the configuration number followed by '.' followed
+by the interface number. In the above example, each of the devices is using
+configuration 1 and this configuration has only a single interface, number 0.
+So the interfaces show up as;
 
-    >>> serial_s2.idVendor
-    067b
+    1-1:1.0        1-1.3:1.0        1-1.3.1:1.0
 
-    >>> serial_s2.nameVendor
-    Prolific Technology, Inc.
-
-    >>> serial_s2.idProduct
-    2303
-
-    >>> serial_s2.nameProduct
-    PL2303 Serial Port
-
-Get the usb device path::
-
-    >>> serial_s2.path
-    [3, 1, 2]
-    
-Its also possible to traverse up::
-
-    >>> serial_s2.parent.path
-    [3, 1]
-
-Check if its a root hub:: 
-
-    >>> serial_s2.is_root
-    False
-    
-    >>> roots[0].is_root
-    True
-    
-A special case is built in for serial devices. The number and type of a tty
-is assigned in plugin order. So a serial device named ``/dev/ttyUSB0`` can be
-next time ``/dev/ttyUSB1`` if there are two almost same device are connected.
-
-As a human you know its connected to port 1 and port 2 of a usb hub. Now knowing
-the ``path`` allows us to store this information in application logic.
-
-``DeviceNode`` provides the actual name of the serial character device in the
-system::   
-
-    >>> serial_s2.tty
-    ttyUSB0
-    
-In order ot make filtering of devices easier all devices are available as a
-flat list::
-
-     >>> from usbid.device import device_list
-     
-This allows easy filtering i.e. by ``vendorId`` or for all available ttys as
-shown here::       
-
-    >>> ttys = [_ for _ in device_list() if _.tty]
+A hub will never have more than a single interface; that's part of the USB
+spec. But other devices can and do have multiple interfaces (and sometimes
+multiple configurations). Each interface gets its own entry in sysfs and can
+have its own driver.
 
 
-For testing purposes there is a ``mocktree.tgz`` inside the data folder,
-which acts like like a real linux sys-fs filesystem with several usb devices
-connected.
+Usage
+=====
 
-Lookup the ``device.py`` and ``device.rst`` to get a deeper insight.
+The API consists of a USB root object, from which all children can be accessed
+like python container types.
+
+.. code-block:: python
+
+    >>> from usbid import USB
+    >>> usb = USB()
+    >>> usb
+    <usbid.fs.USB [/sys/bus/usb/devices] at ...>
+
+    >>> usb.keys()
+    ['1', '2']
+
+Get a specific bus.
+
+.. code-block:: python
+
+    >>> bus = usb['1']
+    >>> bus
+    <usbid.fs.Bus [usb1] at ...>
+
+Get port from bus.
+
+.. code-block:: python
+
+    >>> port = bus['1']
+    >>> port
+    <usbid.fs.Port [1-1] at ...>
+
+Get interface from port.
+
+.. code-block:: python
+
+    >>> port.interfaces
+    [<usbid.fs.Interface [1-1:1.0] at ...>]
+
+Interfaces might have tty associated.
+
+.. code-block:: python
+
+    >>> port.interfaces[0].tty
+    'ttyUSB0'
+
+It's not a good idea to refer to a USB interface by its tty mount name. But
+it's a good idea to remember the file system name for unique identification,
+lookup interface by this name and then connect to corresponding tty.
+
+.. code-block:: python
+
+    >>> interface = usb.get_interface('1-1:1.0')
+    >>> interface.tty
+    'ttyUSB0'
+
+For debugging you can print the USB structure.
+
+.. code-block:: python
+
+    >>> usb.printtree()
+    <usbid.fs.USB [/sys/bus/usb/devices] at ...>
+      <usbid.fs.Bus [usb1] at ...>
+          - Linux 3.13.0-48-generic xhci_hcd
+          - xHCI Host Controller
+        <usbid.fs.Interface [1-0:1.0] at ...>
+        <usbid.fs.Port [1-1] at ...>
+            - FTDI
+            - FT232R USB UART
+          <usbid.fs.Interface [1-1:1.0] at ...>
+            - ttyUSB0
 
 
 Source Code
@@ -211,12 +134,12 @@ Source Code
 The sources are in a GIT DVCS with its main branches at
 `github <http://github.com/bluedynamics/usbid>`_.
 
-We'd be happy to see many forks and pull-requests to make usbid even better.
-
 
 Contributors
 ============
 
-- Jens W. Klein <jens@bluedynamics.com>
-- Benjamin Stefaner <bs@kleinundpartner.at>
 - Robert Niederreiter <rnix@squarewave.at>
+
+- Jens W. Klein <jens@bluedynamics.com>
+
+- Benjamin Stefaner <bs@kleinundpartner.at>
