@@ -2,8 +2,8 @@
 History
 =======
 
-2.0 (unreleased)
-----------------
+2.0
+---
 
 - Complete rewrite.
   [rnix, 2015-04-08]
