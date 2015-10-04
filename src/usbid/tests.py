@@ -1,11 +1,11 @@
-import os
-import doctest
-import unittest
-import tempfile
-import tarfile
 from interlude import interact
 from pkg_resources import resource_filename
 from pprint import pprint
+import doctest
+import os
+import tarfile
+import tempfile
+import unittest
 
 
 optionflags = doctest.NORMALIZE_WHITESPACE | \
