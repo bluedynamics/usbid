@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import re
 
@@ -83,19 +84,19 @@ class ReprMixin(object):
         )
 
     def printtree(self, indent=0):
-        print '{0}{1}'.format(indent * ' ', repr(self))
+        print('{0}{1}'.format(indent * ' ', repr(self)))
         manufacturer = getattr(self, 'manufacturer', None)
         if manufacturer is not None:
-            print '{0}- {1}'.format((indent + 4) * ' ', manufacturer)
+            print('{0}- {1}'.format((indent + 4) * ' ', manufacturer))
         product = getattr(self, 'product', None)
         if product is not None:
-            print '{0}- {1}'.format((indent + 4) * ' ', product)
+            print('{0}- {1}'.format((indent + 4) * ' ', product))
         if isinstance(self, InterfaceProvider):
             for iface in sorted(self.interfaces, key=lambda x: x.fs_name):
-                print '{0}{1}'.format((indent + 2) * ' ', repr(iface))
+                print('{0}{1}'.format((indent + 2) * ' ', repr(iface)))
                 tty = iface.tty
                 if tty:
-                    print '{0}- {1}'.format((indent + 4) * ' ', tty)
+                    print('{0}- {1}'.format((indent + 4) * ' ', tty))
         for node in sorted(self.values(), key=lambda x: x.fs_name):
             node.printtree(indent + 2)
 
