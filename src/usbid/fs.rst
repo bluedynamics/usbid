@@ -143,7 +143,7 @@ Bus
     >>> bus.name
     '3'
 
-    >>> bus.keys()
+    >>> sorted(bus.keys())
     ['2', '4']
 
     >>> bus['1']
@@ -154,11 +154,11 @@ Bus
     >>> bus['2']
     <usbid.fs.Port [3-2] at ...>
 
-    >>> bus.values()
+    >>> sorted(bus.values(), key=lambda x: x.name)
     [<usbid.fs.Port [3-2] at ...>, 
     <usbid.fs.Port [3-4] at ...>]
 
-    >>> bus.items()
+    >>> sorted(bus.items(), key=lambda x: x[0])
     [('2', <usbid.fs.Port [3-2] at ...>), 
     ('4', <usbid.fs.Port [3-4] at ...>)]
 
