@@ -3,7 +3,7 @@ from setuptools import setup
 import os
 
 
-version = '2.0'
+version = '2.1'
 shortdesc = \
 'USB file system API for Linux'
 longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()

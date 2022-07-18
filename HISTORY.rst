@@ -2,6 +2,13 @@
 History
 =======
 
+2.1
+---
+
+- Python 3 Support
+  [rnix, 2022-07-17]
+
+
 2.0
 ---
 
