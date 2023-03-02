@@ -5,6 +5,12 @@ Changelog
 2.2 (unreleased)
 ----------------
 
+- Officially support Python 3.7 - 3.11.
+  [rnix]
+
+- CI Integration.
+  [rnix]
+
 - Convert doctests to unittests.
   [rnix]
 
