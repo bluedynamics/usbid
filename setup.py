@@ -3,13 +3,18 @@ from setuptools import setup
 import os
 
 
-version = '2.1'
-shortdesc = \
-'USB file system API for Linux'
-longdesc = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
-longdesc += open(os.path.join(os.path.dirname(__file__), 'HISTORY.rst')).read()
-longdesc += open(os.path.join(os.path.dirname(__file__), 'LICENSE.rst')).read()
-tests_require = ['interlude']
+def read_file(name):
+    with open(os.path.join(os.path.dirname(__file__), name)) as f:
+        return f.read()
+
+
+version = '2.2.dev0'
+shortdesc = 'USB file system API for Linux'
+longdesc = '\n\n'.join([read_file(name) for name in [
+    'README.rst',
+    'CHANGES.rst',
+    'LICENSE.rst'
+]])
 
 
 setup(
@@ -32,13 +37,6 @@ setup(
     package_dir={'': 'src'},
     include_package_data=True,
     zip_safe=True,
-    install_requires=[
-        'setuptools',
-    ],
-    tests_require=tests_require,
-    test_suite="usbid.tests.test_suite",
-    extras_require=dict(
-        test=tests_require,
-    ),
-    entry_points={},
+    install_requires=['setuptools'],
+    extras_require=dict(test=['coverage'])
 )

@@ -2,6 +2,12 @@
 History
 =======
 
+2.2 (unreleased)
+----------------
+
+- No changes yet.
+
+
 2.1
 ---
 
