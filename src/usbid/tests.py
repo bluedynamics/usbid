@@ -1,4 +1,10 @@
 from pkg_resources import resource_filename
+from usbid import Bus
+from usbid import Interface
+from usbid import Port
+from usbid import USB
+from usbid.fs import Container
+from usbid.fs import FileAttributes
 import doctest
 import os
 import shutil
@@ -6,10 +12,6 @@ import sys
 import tarfile
 import tempfile
 import unittest
-from usbid.fs import Container
-from usbid.fs import FileAttributes
-from usbid import USB
-from usbid import Bus
 
 
 def get_file_attribues(obj):
@@ -21,7 +23,7 @@ def get_file_attribues(obj):
 
 class Example(object):
 
-    def __init__(self, want):
+    def __init__(self, want):  # pragma: no cover
         self.want = want + '\n'
 
 
@@ -44,7 +46,7 @@ class TestUsbid(unittest.TestCase):
         if optionflags is None:
             optionflags = self._optionflags
         success = self._checker.check_output(want, got, optionflags)
-        if not success:
+        if not success:  # pragma: no cover
             raise Failure(self._checker.output_difference(
                 Example(want),
                 got, optionflags
@@ -119,16 +121,17 @@ class TestUsbid(unittest.TestCase):
 
     def test_USB(self):
         test_data_1_dir = os.path.join(
-            self.tempdir, '1', 'sys', 'bus', 'usb', 'devices')
+            self.tempdir, '1', 'sys', 'bus', 'usb', 'devices'
+        )
 
         usb = USB(fs_path=test_data_1_dir)
         self.checkOutput(
             '<usbid.fs.USB [/.../1/sys/bus/usb/devices] at ...>',
             str(usb)
         )
-        self.assertTrue(usb.fs_path.endswith('/1/sys/bus/usb/devices'))
+        self.checkOutput('.../1/sys/bus/usb/devices', usb.fs_path)
         self.assertEqual(usb.fs_name, 'devices')
-        self.assertTrue(usb.fs_parent.endswith('/1/sys/bus/usb'))
+        self.checkOutput('.../1/sys/bus/usb', usb.fs_parent)
         self.assertEqual(sorted(usb.keys()), ['1', '2', '3', '4'])
         with self.assertRaises(KeyError):
             usb['0']
@@ -158,10 +161,10 @@ class TestUsbid(unittest.TestCase):
         self.assertEqual(str(arc.exception), 'Invalid path given')
 
         test_data_1_dir = os.path.join(
-            self.tempdir, '1', 'sys', 'bus', 'usb', 'devices')
-        usb = USB(fs_path=test_data_1_dir)
+            self.tempdir, '1', 'sys', 'bus', 'usb', 'devices'
+        )
 
-        bus = usb['3']
+        bus = USB(fs_path=test_data_1_dir)['3']
         self.checkOutput('<usbid.fs.Bus [usb3] at ...>', str(bus))
         self.assertEqual(bus.name, '3')
         self.assertEqual(sorted(bus.keys()), ['2', '4'])
@@ -227,427 +230,411 @@ class TestUsbid(unittest.TestCase):
             ('uevent', 'DEVTYPE=usb_interface\nDRIVER=hub\nPRODUCT=1d6b/2/313\nTYPE=9/0/1\nINTERFACE=9/0/0\nMODALIAS=usb:v1D6Bp0002d0313dc09dsc00dp01ic09isc00ip00in00')
         ])
 
-"""
-Port
-----
+    def test_Port(self):
+        with self.assertRaises(ValueError) as arc:
+            Port(name=None, parent=None, fs_path='inexistent')
+        self.assertEqual(str(arc.exception), 'Invalid path given')
 
-::
+        test_data_1_dir = os.path.join(
+            self.tempdir, '1', 'sys', 'bus', 'usb', 'devices'
+        )
+        port = USB(fs_path=test_data_1_dir)['3']['2']
 
-    >>> from usbid import Port
-    >>> Port(name=None, parent=None, fs_path='inexistent')
-    Traceback (most recent call last):
-      ...
-    ValueError: Invalid path given
+        self.checkOutput('<usbid.fs.Port [3-2] at ...>', str(port))
+        self.checkOutput('.../1/sys/bus/usb/devices/usb3/3-2', str(port.fs_path))
+        self.assertEqual(port.fs_name, '3-2')
 
-    >>> port = bus['2']
-    >>> port
-    <usbid.fs.Port [3-2] at ...>
+        self.assertEqual(get_file_attribues(port), [
+            ('authorized', '1'),
+            ('avoid_reset_quirk', '0'),
+            ('bcdDevice', '0100'),
+            ('bConfigurationValue', '1'),
+            ('bDeviceClass', '09'),
+            ('bDeviceProtocol', '01'),
+            ('bDeviceSubClass', '00'),
+            ('bmAttributes', 'e0'),
+            ('bMaxPacketSize0', '64'),
+            ('bMaxPower', '100mA'),
+            ('bNumConfigurations', '1'),
+            ('bNumInterfaces', '1'),
+            ('busnum', '3'),
+            ('dev', '189:378'),
+            ('devnum', '123'),
+            ('devpath', '2'),
+            ('idProduct', '005a'),
+            ('idVendor', '0409'),
+            ('ltm_capable', 'no'),
+            ('manufacturer', None),
+            ('maxchild', '4'),
+            ('product', None),
+            ('quirks', '0x0'),
+            ('removable', 'removable'),
+            ('serial', None),
+            ('speed', '480'),
+            ('uevent', 'MAJOR=189\nMINOR=378\nDEVNAME=bus/usb/003/123\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=409/5a/100\nTYPE=9/0/1\nBUSNUM=003\nDEVNUM=123'),
+            ('urbnum', '47'),
+            ('version', '2.00')
+        ])
 
-    >>> port.fs_path
-    '.../1/sys/bus/usb/devices/usb3/3-2'
+        self.checkOutput(
+            '[<usbid.fs.Interface [3-2:1.0] at ...>]',
+            str(port.interfaces)
+        )
+        interface = port.interfaces[0]
+        self.assertEqual(get_file_attribues(interface), [
+            ('bAlternateSetting', '0'),
+            ('bInterfaceClass', '09'),
+            ('bInterfaceNumber', '00'),
+            ('bInterfaceProtocol', '00'),
+            ('bInterfaceSubClass', '00'),
+            ('bNumEndpoints', '01'),
+            ('interface', None),
+            ('modalias', 'usb:v0409p005Ad0100dc09dsc00dp01ic09isc00ip00in00'),
+            ('supports_autosuspend', '1'),
+            ('uevent', 'DEVTYPE=usb_interface\nDRIVER=hub\nPRODUCT=409/5a/100\nTYPE=9/0/1\nINTERFACE=9/0/0\nMODALIAS=usb:v0409p005Ad0100dc09dsc00dp01ic09isc00ip00in00')
+        ])
+        self.assertEqual(sorted(port.keys()), ['1', '2', '3', '4'])
 
-    >>> port.fs_name
-    '3-2'
+        with self.assertRaises(KeyError):
+            port['0']
 
-    >>> get_file_attribues(port)
-    [('authorized', '1'),
-    ('avoid_reset_quirk', '0'),
-    ('bcdDevice', '0100'),
-    ('bConfigurationValue', '1'),
-    ('bDeviceClass', '09'),
-    ('bDeviceProtocol', '01'),
-    ('bDeviceSubClass', '00'),
-    ('bmAttributes', 'e0'),
-    ('bMaxPacketSize0', '64'),
-    ('bMaxPower', '100mA'),
-    ('bNumConfigurations', '1'),
-    ('bNumInterfaces', '1'),
-    ('busnum', '3'),
-    ('dev', '189:378'),
-    ('devnum', '123'),
-    ('devpath', '2'),
-    ('idProduct', '005a'),
-    ('idVendor', '0409'),
-    ('ltm_capable', 'no'),
-    ('manufacturer', None),
-    ('maxchild', '4'),
-    ('product', None),
-    ('quirks', '0x0'),
-    ('removable', 'removable'),
-    ('serial', None),
-    ('speed', '480'),
-    ('uevent', 'MAJOR=189\nMINOR=378\nDEVNAME=bus/usb/003/123\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=409/5a/100\nTYPE=9/0/1\nBUSNUM=003\nDEVNUM=123'),
-    ('urbnum', '47'),
-    ('version', '2.00')]
+        sub_port = port['1']
+        self.checkOutput('<usbid.fs.Port [3-2.1] at ...>', str(sub_port))
+        self.checkOutput(
+            '.../1/sys/bus/usb/devices/usb3/3-2/3-2.1',
+            str(sub_port.fs_path)
+        )
+        self.assertEqual(sub_port.fs_name, '3-2.1')
 
-    >>> port.interfaces
-    [<usbid.fs.Interface [3-2:1.0] at ...>]
+        self.assertEqual(get_file_attribues(sub_port), [
+            ('authorized', '1'),
+            ('avoid_reset_quirk', '0'),
+            ('bcdDevice', '0600'),
+            ('bConfigurationValue', '1'),
+            ('bDeviceClass', '00'),
+            ('bDeviceProtocol', '00'),
+            ('bDeviceSubClass', '00'),
+            ('bmAttributes', 'a0'),
+            ('bMaxPacketSize0', '8'),
+            ('bMaxPower', '90mA'),
+            ('bNumConfigurations', '1'),
+            ('bNumInterfaces', '1'),
+            ('busnum', '3'),
+            ('dev', '189:379'),
+            ('devnum', '124'),
+            ('devpath', '2.1'),
+            ('idProduct', '6001'),
+            ('idVendor', '0403'),
+            ('ltm_capable', 'no'),
+            ('manufacturer', 'FTDI'),
+            ('maxchild', '0'),
+            ('product', 'FT232R USB UART'),
+            ('quirks', '0x0'),
+            ('removable', 'unknown'),
+            ('serial', 'A7022OOQ'),
+            ('speed', '12'),
+            ('uevent', 'MAJOR=189\nMINOR=379\nDEVNAME=bus/usb/003/124\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=403/6001/600\nTYPE=0/0/0\nBUSNUM=003\nDEVNUM=124'),
+            ('urbnum', '15'),
+            ('version', '2.00')
+        ])
 
-    >>> interface = port.interfaces[0]
-    >>> get_file_attribues(interface)
-    [('bAlternateSetting', '0'),
-    ('bInterfaceClass', '09'),
-    ('bInterfaceNumber', '00'),
-    ('bInterfaceProtocol', '00'),
-    ('bInterfaceSubClass', '00'),
-    ('bNumEndpoints', '01'),
-    ('interface', None),
-    ('modalias', 'usb:v0409p005Ad0100dc09dsc00dp01ic09isc00ip00in00'),
-    ('supports_autosuspend', '1'),
-    ('uevent', 'DEVTYPE=usb_interface\nDRIVER=hub\nPRODUCT=409/5a/100\nTYPE=9/0/1\nINTERFACE=9/0/0\nMODALIAS=usb:v0409p005Ad0100dc09dsc00dp01ic09isc00ip00in00')]
+        self.checkOutput(
+            '[<usbid.fs.Interface [3-2.1:1.0] at ...>]',
+            str(sub_port.interfaces)
+        )
+        interface = sub_port.interfaces[0]
+        self.assertEqual(get_file_attribues(interface), [
+            ('bAlternateSetting', '0'),
+            ('bInterfaceClass', 'ff'),
+            ('bInterfaceNumber', '00'),
+            ('bInterfaceProtocol', 'ff'),
+            ('bInterfaceSubClass', 'ff'),
+            ('bNumEndpoints', '02'),
+            ('interface', 'FT232R USB UART'),
+            ('modalias', 'usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00'),
+            ('supports_autosuspend', '1'),
+            ('uevent', 'DEVTYPE=usb_interface\nDRIVER=ftdi_sio\nPRODUCT=403/6001/600\nTYPE=0/0/0\nINTERFACE=255/255/255\nMODALIAS=usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00')
+        ])
 
-    >>> sorted(port.keys())
-    ['1', '2', '3', '4']
+    def test_Interface(self):
+        with self.assertRaises(ValueError) as arc:
+            Interface(parent=None, fs_path='inexistent')
+        self.assertEqual(str(arc.exception), 'Invalid path given')
 
-    >>> port['0']
-    Traceback (most recent call last):
-      ...
-    KeyError: '0'
+        test_data_1_dir = os.path.join(
+            self.tempdir, '1', 'sys', 'bus', 'usb', 'devices'
+        )
+        usb = USB(fs_path=test_data_1_dir)
+        port = usb['3']['2']['1']
+        self.checkOutput(
+            '[<usbid.fs.Interface [3-2.1:1.0] at ...>]',
+            str(port.interfaces)
+        )
 
-    >>> sub_port = port['1']
-    >>> sub_port
-    <usbid.fs.Port [3-2.1] at ...>
+        interface = port.interfaces[0]
+        self.checkOutput(
+            '<usbid.fs.Port [3-2.1] at ...>',
+            str(interface.parent)
+        )
+        self.assertEqual(interface.fs_name, '3-2.1:1.0')
+        self.assertEqual(interface.manufacturer, 'FTDI')
+        self.assertEqual(interface.product, 'FT232R USB UART')
 
-    >>> sub_port.fs_path
-    '.../1/sys/bus/usb/devices/usb3/3-2/3-2.1'
+        interface = usb.get_interface(interface.fs_name)
+        self.checkOutput(
+            '<usbid.fs.Interface [3-2.1:1.0] at ...>',
+            str(interface)
+        )
+        self.checkOutput(
+            '<usbid.fs.Port [3-2.1] at ...>',
+            str(interface.parent)
+        )
+        self.assertEqual(interface.manufacturer, 'FTDI')
+        self.assertEqual(interface.product, 'FT232R USB UART')
 
-    >>> sub_port.fs_name
-    '3-2.1'
+    def test_data_tree_1(self):
+        test_data_1_dir = os.path.join(
+            self.tempdir, '1', 'sys', 'bus', 'usb', 'devices'
+        )
+        usb = USB(fs_path=test_data_1_dir)
 
-    >>> get_file_attribues(sub_port)
-    [('authorized', '1'),
-    ('avoid_reset_quirk', '0'),
-    ('bcdDevice', '0600'),
-    ('bConfigurationValue', '1'),
-    ('bDeviceClass', '00'),
-    ('bDeviceProtocol', '00'),
-    ('bDeviceSubClass', '00'),
-    ('bmAttributes', 'a0'),
-    ('bMaxPacketSize0', '8'),
-    ('bMaxPower', '90mA'),
-    ('bNumConfigurations', '1'),
-    ('bNumInterfaces', '1'),
-    ('busnum', '3'),
-    ('dev', '189:379'),
-    ('devnum', '124'),
-    ('devpath', '2.1'),
-    ('idProduct', '6001'),
-    ('idVendor', '0403'),
-    ('ltm_capable', 'no'),
-    ('manufacturer', 'FTDI'),
-    ('maxchild', '0'),
-    ('product', 'FT232R USB UART'),
-    ('quirks', '0x0'),
-    ('removable', 'unknown'),
-    ('serial', 'A7022OOQ'),
-    ('speed', '12'),
-    ('uevent', 'MAJOR=189\nMINOR=379\nDEVNAME=bus/usb/003/124\nDEVTYPE=usb_device\nDRIVER=usb\nPRODUCT=403/6001/600\nTYPE=0/0/0\nBUSNUM=003\nDEVNUM=124'),
-    ('urbnum', '15'),
-    ('version', '2.00')]
+        self.checkOutput("""
+        <usbid.fs.USB [/.../1/sys/bus/usb/devices] at ...>
+        __<usbid.fs.Bus [usb1] at ...>
+        ______- Linux 3.13.0-48-generic ehci_hcd
+        ______- EHCI Host Controller
+        ____<usbid.fs.Interface [1-0:1.0] at ...>
+        ____<usbid.fs.Port [1-1] at ...>
+        ______<usbid.fs.Interface [1-1:1.0] at ...>
+        ______<usbid.fs.Port [1-1.2] at ...>
+        __________- USB Optical Mouse
+        ________<usbid.fs.Interface [1-1.2:1.0] at ...>
+        ______<usbid.fs.Port [1-1.3] at ...>
+        __________- Auth
+        __________- Biometric Coprocessor
+        ________<usbid.fs.Interface [1-1.3:1.0] at ...>
+        ______<usbid.fs.Port [1-1.4] at ...>
+        __________- Broadcom Corp
+        __________- BCM20702A0
+        ________<usbid.fs.Interface [1-1.4:1.0] at ...>
+        ________<usbid.fs.Interface [1-1.4:1.1] at ...>
+        ________<usbid.fs.Interface [1-1.4:1.2] at ...>
+        ________<usbid.fs.Interface [1-1.4:1.3] at ...>
+        ______<usbid.fs.Port [1-1.6] at ...>
+        __________- SunplusIT INC.
+        __________- Integrated Camera
+        ________<usbid.fs.Interface [1-1.6:1.0] at ...>
+        ________<usbid.fs.Interface [1-1.6:1.1] at ...>
+        __<usbid.fs.Bus [usb2] at ...>
+        ______- Linux 3.13.0-48-generic ehci_hcd
+        ______- EHCI Host Controller
+        ____<usbid.fs.Interface [2-0:1.0] at ...>
+        ____<usbid.fs.Port [2-1] at ...>
+        ______<usbid.fs.Interface [2-1:1.0] at ...>
+        __<usbid.fs.Bus [usb3] at ...>
+        ______- Linux 3.13.0-48-generic xhci_hcd
+        ______- xHCI Host Controller
+        ____<usbid.fs.Interface [3-0:1.0] at ...>
+        ____<usbid.fs.Port [3-2] at ...>
+        ______<usbid.fs.Interface [3-2:1.0] at ...>
+        ______<usbid.fs.Port [3-2.1] at ...>
+        __________- FTDI
+        __________- FT232R USB UART
+        ________<usbid.fs.Interface [3-2.1:1.0] at ...>
+        __________- ttyUSB0
+        ______<usbid.fs.Port [3-2.2] at ...>
+        __________- FTDI
+        __________- FT232R USB UART
+        ________<usbid.fs.Interface [3-2.2:1.0] at ...>
+        __________- ttyUSB1
+        ______<usbid.fs.Port [3-2.3] at ...>
+        __________- FTDI
+        __________- FT232R USB UART
+        ________<usbid.fs.Interface [3-2.3:1.0] at ...>
+        __________- ttyUSB2
+        ______<usbid.fs.Port [3-2.4] at ...>
+        __________- FTDI
+        __________- FT232R USB UART
+        ________<usbid.fs.Interface [3-2.4:1.0] at ...>
+        __________- ttyUSB3
+        ____<usbid.fs.Port [3-4] at ...>
+        ________- Lenovo
+        ________- H5321 gw
+        ______<usbid.fs.Interface [3-4:1.0] at ...>
+        ______<usbid.fs.Interface [3-4:1.1] at ...>
+        ________- ttyACM0
+        ______<usbid.fs.Interface [3-4:1.2] at ...>
+        ______<usbid.fs.Interface [3-4:1.3] at ...>
+        ________- ttyACM1
+        ______<usbid.fs.Interface [3-4:1.4] at ...>
+        ______<usbid.fs.Interface [3-4:1.5] at ...>
+        ______<usbid.fs.Interface [3-4:1.6] at ...>
+        ______<usbid.fs.Interface [3-4:1.7] at ...>
+        ______<usbid.fs.Interface [3-4:1.8] at ...>
+        ______<usbid.fs.Interface [3-4:1.9] at ...>
+        ________- ttyACM2
+        __<usbid.fs.Bus [usb4] at ...>
+        ______- Linux 3.13.0-48-generic xhci_hcd
+        ______- xHCI Host Controller
+        ____<usbid.fs.Interface [4-0:1.0] at ...>
+        """, usb.treerepr(prefix='_'))
 
-    >>> sub_port.interfaces
-    [<usbid.fs.Interface [3-2.1:1.0] at ...>]
+        self.checkOutput("""
+        [<usbid.fs.Interface [1-0:1.0] at ...>,
+        <usbid.fs.Interface [1-1.2:1.0] at ...>,
+        <usbid.fs.Interface [1-1.3:1.0] at ...>,
+        <usbid.fs.Interface [1-1.4:1.0] at ...>,
+        <usbid.fs.Interface [1-1.4:1.1] at ...>,
+        <usbid.fs.Interface [1-1.4:1.2] at ...>,
+        <usbid.fs.Interface [1-1.4:1.3] at ...>,
+        <usbid.fs.Interface [1-1.6:1.0] at ...>,
+        <usbid.fs.Interface [1-1.6:1.1] at ...>,
+        <usbid.fs.Interface [1-1:1.0] at ...>,
+        <usbid.fs.Interface [2-0:1.0] at ...>,
+        <usbid.fs.Interface [2-1:1.0] at ...>,
+        <usbid.fs.Interface [3-0:1.0] at ...>,
+        <usbid.fs.Interface [3-2.1:1.0] at ...>,
+        <usbid.fs.Interface [3-2.2:1.0] at ...>,
+        <usbid.fs.Interface [3-2.3:1.0] at ...>,
+        <usbid.fs.Interface [3-2.4:1.0] at ...>,
+        <usbid.fs.Interface [3-2:1.0] at ...>,
+        <usbid.fs.Interface [3-4:1.0] at ...>,
+        <usbid.fs.Interface [3-4:1.1] at ...>,
+        <usbid.fs.Interface [3-4:1.2] at ...>,
+        <usbid.fs.Interface [3-4:1.3] at ...>,
+        <usbid.fs.Interface [3-4:1.4] at ...>,
+        <usbid.fs.Interface [3-4:1.5] at ...>,
+        <usbid.fs.Interface [3-4:1.6] at ...>,
+        <usbid.fs.Interface [3-4:1.7] at ...>,
+        <usbid.fs.Interface [3-4:1.8] at ...>,
+        <usbid.fs.Interface [3-4:1.9] at ...>,
+        <usbid.fs.Interface [4-0:1.0] at ...>]
+        """, str(sorted(usb.aggregated_interfaces(), key=lambda x: x.fs_path)))
 
-    >>> interface = sub_port.interfaces[0]
-    >>> get_file_attribues(interface)
-    [('bAlternateSetting', '0'),
-    ('bInterfaceClass', 'ff'),
-    ('bInterfaceNumber', '00'),
-    ('bInterfaceProtocol', 'ff'),
-    ('bInterfaceSubClass', 'ff'),
-    ('bNumEndpoints', '02'),
-    ('interface', 'FT232R USB UART'),
-    ('modalias', 'usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00'),
-    ('supports_autosuspend', '1'),
-    ('uevent', 'DEVTYPE=usb_interface\nDRIVER=ftdi_sio\nPRODUCT=403/6001/600\nTYPE=0/0/0\nINTERFACE=255/255/255\nMODALIAS=usb:v0403p6001d0600dc00dsc00dp00icFFiscFFipFFin00')]
+        tty_ifaces = sorted(
+            usb.aggregated_interfaces(tty=True),
+            key=lambda x: x.fs_path
+        )
+        self.checkOutput("""
+        ['/.../1/sys/bus/usb/devices/usb3/3-2/3-2.1/3-2.1:1.0 - ttyUSB0',
+        '/.../1/sys/bus/usb/devices/usb3/3-2/3-2.2/3-2.2:1.0 - ttyUSB1',
+        '/.../1/sys/bus/usb/devices/usb3/3-2/3-2.3/3-2.3:1.0 - ttyUSB2',
+        '/.../1/sys/bus/usb/devices/usb3/3-2/3-2.4/3-2.4:1.0 - ttyUSB3',
+        '/.../1/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0',
+        '/.../1/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1',
+        '/.../1/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
+        """, str(['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]))
 
+    def test_data_tree_2(self):
+        test_data_2_dir = os.path.join(
+            self.tempdir, '2', 'sys', 'bus', 'usb', 'devices'
+        )
+        usb = USB(fs_path=test_data_2_dir)
 
-Interface
----------
+        self.checkOutput("""
+        <usbid.fs.USB [/.../2/sys/bus/usb/devices] at ...>
+        ...
+        __<usbid.fs.Bus [usb3] at ...>
+        ______- Linux 3.13.0-48-generic xhci_hcd
+        ______- xHCI Host Controller
+        ____<usbid.fs.Interface [3-0:1.0] at ...>
+        ____<usbid.fs.Port [3-2] at ...>
+        ________- FTDI
+        ________- USB <-> Serial Cable
+        ______<usbid.fs.Interface [3-2:1.0] at ...>
+        ________- ttyUSB0
+        ______<usbid.fs.Interface [3-2:1.1] at ...>
+        ________- ttyUSB1
+        ...
+        """, usb.treerepr(prefix='_'))
 
-::
+        tty_ifaces = sorted(
+            usb.aggregated_interfaces(tty=True),
+            key=lambda x: x.fs_path
+        )
+        self.checkOutput("""
+        ['.../2/sys/bus/usb/devices/usb3/3-2/3-2:1.0 - ttyUSB0',
+        '/.../2/sys/bus/usb/devices/usb3/3-2/3-2:1.1 - ttyUSB1',
+        '/.../2/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0',
+        '/.../2/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1',
+        '/.../2/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
+        """, str(['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]))
 
-    >>> from usbid import Interface
-    >>> Interface(parent=None, fs_path='inexistent')
-    Traceback (most recent call last):
-      ...
-    ValueError: Invalid path given
+    def test_data_tree_3(self):
+        test_data_3_dir = os.path.join(
+            self.tempdir, '3', 'sys', 'bus', 'usb', 'devices'
+        )
+        usb = USB(fs_path=test_data_3_dir)
 
-    >>> port = usb['3']['2']['1']
-    >>> port.interfaces
-    [<usbid.fs.Interface [3-2.1:1.0] at ...>]
+        self.checkOutput("""
+        <usbid.fs.USB [/.../3/sys/bus/usb/devices] at ...>
+        __<usbid.fs.Bus [usb3] at ...>
+        ______- Linux 3.13.0-48-generic xhci_hcd
+        ______- xHCI Host Controller
+        ____<usbid.fs.Interface [3-0:1.0] at ...>
+        ____<usbid.fs.Port [3-2] at ...>
+        ______<usbid.fs.Interface [3-2:1.0] at ...>
+        ______<usbid.fs.Port [3-2.2] at ...>
+        __________- DMX4ALL
+        __________- NanoDMX Interface
+        ________<usbid.fs.Interface [3-2.2:1.0] at ...>
+        __________- ttyACM3
+        ________<usbid.fs.Interface [3-2.2:1.1] at ...>
+        ______<usbid.fs.Port [3-2.4] at ...>
+        __________- Prolific Technology Inc.
+        __________- USB-Serial Controller D
+        ________<usbid.fs.Interface [3-2.4:1.0] at ...>
+        __________- ttyUSB0
+        ______<usbid.fs.Port [3-2.6] at ...>
+        ________<usbid.fs.Interface [3-2.6:1.0] at ...>
+        ________<usbid.fs.Port [3-2.6.1] at ...>
+        ____________- FTDI
+        ____________- FT232R USB UART
+        __________<usbid.fs.Interface [3-2.6.1:1.0] at ...>
+        ____________- ttyUSB3
+        ________<usbid.fs.Port [3-2.6.2] at ...>
+        ____________- FTDI
+        ____________- FT232R USB UART
+        __________<usbid.fs.Interface [3-2.6.2:1.0] at ...>
+        ____________- ttyUSB4
+        ________<usbid.fs.Port [3-2.6.3] at ...>
+        ____________- FTDI
+        ____________- FT232R USB UART
+        __________<usbid.fs.Interface [3-2.6.3:1.0] at ...>
+        ____________- ttyUSB5
+        ________<usbid.fs.Port [3-2.6.4] at ...>
+        ____________- FTDI
+        ____________- FT232R USB UART
+        __________<usbid.fs.Interface [3-2.6.4:1.0] at ...>
+        ____________- ttyUSB6
+        ______<usbid.fs.Port [3-2.7] at ...>
+        __________- FTDI
+        __________- USB <-> Serial Cable
+        ________<usbid.fs.Interface [3-2.7:1.0] at ...>
+        __________- ttyUSB1
+        ________<usbid.fs.Interface [3-2.7:1.1] at ...>
+        __________- ttyUSB2
+        ...
+        """, usb.treerepr(prefix='_'))
 
-    >>> interface = port.interfaces[0]
-    >>> interface.parent
-    <usbid.fs.Port [3-2.1] at ...>
+        tty_ifaces = sorted(
+            usb.aggregated_interfaces(tty=True),
+            key=lambda x: x.fs_path
+        )
+        self.checkOutput("""
+        ['/.../3/sys/bus/usb/devices/usb3/3-2/3-2.2/3-2.2:1.0 - ttyACM3',
+        '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.4/3-2.4:1.0 - ttyUSB0',
+        '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.1/3-2.6.1:1.0 - ttyUSB3',
+        '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.2/3-2.6.2:1.0 - ttyUSB4',
+        '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.3/3-2.6.3:1.0 - ttyUSB5',
+        '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.4/3-2.6.4:1.0 - ttyUSB6',
+        '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.7/3-2.7:1.0 - ttyUSB1',
+        '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.7/3-2.7:1.1 - ttyUSB2',
+        '/.../3/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0',
+        '/.../3/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1',
+        '/.../3/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
+        """, str(['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]))
 
-    >>> interface.fs_name
-    '3-2.1:1.0'
-
-    >>> interface.manufacturer
-    'FTDI'
-
-    >>> interface.product
-    'FT232R USB UART'
-
-    >>> interface = usb.get_interface(interface.fs_name)
-    >>> interface
-    <usbid.fs.Interface [3-2.1:1.0] at ...>
-
-    >>> interface.parent
-    <usbid.fs.Port [3-2.1] at ...>
-
-    >>> interface.manufacturer
-    'FTDI'
-
-    >>> interface.product
-    'FT232R USB UART'
-
-
-Test data tree 1
-----------------
-
-::
-
-    >>> usb.printtree()
-    <usbid.fs.USB [/.../1/sys/bus/usb/devices] at ...>
-      <usbid.fs.Bus [usb1] at ...>
-          - Linux 3.13.0-48-generic ehci_hcd
-          - EHCI Host Controller
-        <usbid.fs.Interface [1-0:1.0] at ...>
-        <usbid.fs.Port [1-1] at ...>
-          <usbid.fs.Interface [1-1:1.0] at ...>
-          <usbid.fs.Port [1-1.2] at ...>
-              - USB Optical Mouse
-            <usbid.fs.Interface [1-1.2:1.0] at ...>
-          <usbid.fs.Port [1-1.3] at ...>
-              - Auth
-              - Biometric Coprocessor
-            <usbid.fs.Interface [1-1.3:1.0] at ...>
-          <usbid.fs.Port [1-1.4] at ...>
-              - Broadcom Corp
-              - BCM20702A0
-            <usbid.fs.Interface [1-1.4:1.0] at ...>
-            <usbid.fs.Interface [1-1.4:1.1] at ...>
-            <usbid.fs.Interface [1-1.4:1.2] at ...>
-            <usbid.fs.Interface [1-1.4:1.3] at ...>
-          <usbid.fs.Port [1-1.6] at ...>
-              - SunplusIT INC.
-              - Integrated Camera
-            <usbid.fs.Interface [1-1.6:1.0] at ...>
-            <usbid.fs.Interface [1-1.6:1.1] at ...>
-      <usbid.fs.Bus [usb2] at ...>
-          - Linux 3.13.0-48-generic ehci_hcd
-          - EHCI Host Controller
-        <usbid.fs.Interface [2-0:1.0] at ...>
-        <usbid.fs.Port [2-1] at ...>
-          <usbid.fs.Interface [2-1:1.0] at ...>
-      <usbid.fs.Bus [usb3] at ...>
-          - Linux 3.13.0-48-generic xhci_hcd
-          - xHCI Host Controller
-        <usbid.fs.Interface [3-0:1.0] at ...>
-        <usbid.fs.Port [3-2] at ...>
-          <usbid.fs.Interface [3-2:1.0] at ...>
-          <usbid.fs.Port [3-2.1] at ...>
-              - FTDI
-              - FT232R USB UART
-            <usbid.fs.Interface [3-2.1:1.0] at ...>
-              - ttyUSB0
-          <usbid.fs.Port [3-2.2] at ...>
-              - FTDI
-              - FT232R USB UART
-            <usbid.fs.Interface [3-2.2:1.0] at ...>
-              - ttyUSB1
-          <usbid.fs.Port [3-2.3] at ...>
-              - FTDI
-              - FT232R USB UART
-            <usbid.fs.Interface [3-2.3:1.0] at ...>
-              - ttyUSB2
-          <usbid.fs.Port [3-2.4] at ...>
-              - FTDI
-              - FT232R USB UART
-            <usbid.fs.Interface [3-2.4:1.0] at ...>
-              - ttyUSB3
-        <usbid.fs.Port [3-4] at ...>
-            - Lenovo
-            - H5321 gw
-          <usbid.fs.Interface [3-4:1.0] at ...>
-          <usbid.fs.Interface [3-4:1.1] at ...>
-            - ttyACM0
-          <usbid.fs.Interface [3-4:1.2] at ...>
-          <usbid.fs.Interface [3-4:1.3] at ...>
-            - ttyACM1
-          <usbid.fs.Interface [3-4:1.4] at ...>
-          <usbid.fs.Interface [3-4:1.5] at ...>
-          <usbid.fs.Interface [3-4:1.6] at ...>
-          <usbid.fs.Interface [3-4:1.7] at ...>
-          <usbid.fs.Interface [3-4:1.8] at ...>
-          <usbid.fs.Interface [3-4:1.9] at ...>
-            - ttyACM2
-      <usbid.fs.Bus [usb4] at ...>
-          - Linux 3.13.0-48-generic xhci_hcd
-          - xHCI Host Controller
-        <usbid.fs.Interface [4-0:1.0] at ...>
-
-    >>> sorted(usb.aggregated_interfaces(), key=lambda x: x.fs_path)
-    [<usbid.fs.Interface [1-0:1.0] at ...>,
-    <usbid.fs.Interface [1-1.2:1.0] at ...>,
-    <usbid.fs.Interface [1-1.3:1.0] at ...>,
-    <usbid.fs.Interface [1-1.4:1.0] at ...>,
-    <usbid.fs.Interface [1-1.4:1.1] at ...>,
-    <usbid.fs.Interface [1-1.4:1.2] at ...>,
-    <usbid.fs.Interface [1-1.4:1.3] at ...>,
-    <usbid.fs.Interface [1-1.6:1.0] at ...>,
-    <usbid.fs.Interface [1-1.6:1.1] at ...>,
-    <usbid.fs.Interface [1-1:1.0] at ...>,
-    <usbid.fs.Interface [2-0:1.0] at ...>,
-    <usbid.fs.Interface [2-1:1.0] at ...>,
-    <usbid.fs.Interface [3-0:1.0] at ...>,
-    <usbid.fs.Interface [3-2.1:1.0] at ...>,
-    <usbid.fs.Interface [3-2.2:1.0] at ...>,
-    <usbid.fs.Interface [3-2.3:1.0] at ...>,
-    <usbid.fs.Interface [3-2.4:1.0] at ...>,
-    <usbid.fs.Interface [3-2:1.0] at ...>,
-    <usbid.fs.Interface [3-4:1.0] at ...>,
-    <usbid.fs.Interface [3-4:1.1] at ...>,
-    <usbid.fs.Interface [3-4:1.2] at ...>,
-    <usbid.fs.Interface [3-4:1.3] at ...>,
-    <usbid.fs.Interface [3-4:1.4] at ...>,
-    <usbid.fs.Interface [3-4:1.5] at ...>,
-    <usbid.fs.Interface [3-4:1.6] at ...>,
-    <usbid.fs.Interface [3-4:1.7] at ...>,
-    <usbid.fs.Interface [3-4:1.8] at ...>,
-    <usbid.fs.Interface [3-4:1.9] at ...>,
-    <usbid.fs.Interface [4-0:1.0] at ...>]
-
-    >>> tty_ifaces = sorted(
-    ...     usb.aggregated_interfaces(tty=True),
-    ...     key=lambda x: x.fs_path
-    ... )
-    >>> ['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]
-    ['/.../1/sys/bus/usb/devices/usb3/3-2/3-2.1/3-2.1:1.0 - ttyUSB0',
-    '/.../1/sys/bus/usb/devices/usb3/3-2/3-2.2/3-2.2:1.0 - ttyUSB1',
-    '/.../1/sys/bus/usb/devices/usb3/3-2/3-2.3/3-2.3:1.0 - ttyUSB2',
-    '/.../1/sys/bus/usb/devices/usb3/3-2/3-2.4/3-2.4:1.0 - ttyUSB3',
-    '/.../1/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0',
-    '/.../1/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1',
-    '/.../1/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
-
-
-Test data tree 2
-----------------
-
-::
-
-    >>> test_data_2_dir = os.path.join(
-    ...     self.tempdir, '2', 'sys', 'bus', 'usb', 'devices')
-
-    >>> usb = USB(fs_path=test_data_2_dir)
-    >>> usb.printtree()
-    <usbid.fs.USB [/.../2/sys/bus/usb/devices] at ...>
-      ...
-      <usbid.fs.Bus [usb3] at ...>
-          - Linux 3.13.0-48-generic xhci_hcd
-          - xHCI Host Controller
-        <usbid.fs.Interface [3-0:1.0] at ...>
-        <usbid.fs.Port [3-2] at ...>
-            - FTDI
-            - USB <-> Serial Cable
-          <usbid.fs.Interface [3-2:1.0] at ...>
-            - ttyUSB0
-          <usbid.fs.Interface [3-2:1.1] at ...>
-            - ttyUSB1
-      ...
-
-    >>> tty_ifaces = sorted(
-    ...     usb.aggregated_interfaces(tty=True),
-    ...     key=lambda x: x.fs_path
-    ... )
-    >>> ['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]
-    ['.../2/sys/bus/usb/devices/usb3/3-2/3-2:1.0 - ttyUSB0',
-    '/.../2/sys/bus/usb/devices/usb3/3-2/3-2:1.1 - ttyUSB1',
-    '/.../2/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0',
-    '/.../2/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1',
-    '/.../2/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
-
-
-Test data tree 3
-----------------
-
-::
-
-    >>> test_data_3_dir = os.path.join(
-    ...     self.tempdir, '3', 'sys', 'bus', 'usb', 'devices')
-
-    >>> usb = USB(fs_path=test_data_3_dir)
-    >>> usb.printtree()
-    <usbid.fs.USB [/.../3/sys/bus/usb/devices] at ...>
-      <usbid.fs.Bus [usb3] at ...>
-          - Linux 3.13.0-48-generic xhci_hcd
-          - xHCI Host Controller
-        <usbid.fs.Interface [3-0:1.0] at ...>
-        <usbid.fs.Port [3-2] at ...>
-          <usbid.fs.Interface [3-2:1.0] at ...>
-          <usbid.fs.Port [3-2.2] at ...>
-              - DMX4ALL
-              - NanoDMX Interface
-            <usbid.fs.Interface [3-2.2:1.0] at ...>
-              - ttyACM3
-            <usbid.fs.Interface [3-2.2:1.1] at ...>
-          <usbid.fs.Port [3-2.4] at ...>
-              - Prolific Technology Inc.
-              - USB-Serial Controller D
-            <usbid.fs.Interface [3-2.4:1.0] at ...>
-              - ttyUSB0
-          <usbid.fs.Port [3-2.6] at ...>
-            <usbid.fs.Interface [3-2.6:1.0] at ...>
-            <usbid.fs.Port [3-2.6.1] at ...>
-                - FTDI
-                - FT232R USB UART
-              <usbid.fs.Interface [3-2.6.1:1.0] at ...>
-                - ttyUSB3
-            <usbid.fs.Port [3-2.6.2] at ...>
-                - FTDI
-                - FT232R USB UART
-              <usbid.fs.Interface [3-2.6.2:1.0] at ...>
-                - ttyUSB4
-            <usbid.fs.Port [3-2.6.3] at ...>
-                - FTDI
-                - FT232R USB UART
-              <usbid.fs.Interface [3-2.6.3:1.0] at ...>
-                - ttyUSB5
-            <usbid.fs.Port [3-2.6.4] at ...>
-                - FTDI
-                - FT232R USB UART
-              <usbid.fs.Interface [3-2.6.4:1.0] at ...>
-                - ttyUSB6
-          <usbid.fs.Port [3-2.7] at ...>
-              - FTDI
-              - USB <-> Serial Cable
-            <usbid.fs.Interface [3-2.7:1.0] at ...>
-              - ttyUSB1
-            <usbid.fs.Interface [3-2.7:1.1] at ...>
-              - ttyUSB2
-      ...
-
-    >>> tty_ifaces = sorted(
-    ...     usb.aggregated_interfaces(tty=True),
-    ...     key=lambda x: x.fs_path
-    ... )
-    >>> ['{0} - {1}'.format(iface.fs_path, iface.tty) for iface in tty_ifaces]
-    ['/.../3/sys/bus/usb/devices/usb3/3-2/3-2.2/3-2.2:1.0 - ttyACM3',
-    '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.4/3-2.4:1.0 - ttyUSB0',
-    '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.1/3-2.6.1:1.0 - ttyUSB3',
-    '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.2/3-2.6.2:1.0 - ttyUSB4',
-    '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.3/3-2.6.3:1.0 - ttyUSB5',
-    '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.6/3-2.6.4/3-2.6.4:1.0 - ttyUSB6',
-    '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.7/3-2.7:1.0 - ttyUSB1',
-    '/.../3/sys/bus/usb/devices/usb3/3-2/3-2.7/3-2.7:1.1 - ttyUSB2',
-    '/.../3/sys/bus/usb/devices/usb3/3-4/3-4:1.1 - ttyACM0',
-    '/.../3/sys/bus/usb/devices/usb3/3-4/3-4:1.3 - ttyACM1',
-    '/.../3/sys/bus/usb/devices/usb3/3-4/3-4:1.9 - ttyACM2']
-
-"""
 
 if __name__ == '__main__':
     from usbid import tests

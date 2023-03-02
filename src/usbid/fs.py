@@ -11,8 +11,7 @@ IS_INTERFACE = re.compile("^\d-\d(\.\d)*:\d.\d$")
 
 
 class Container(object):
-    """Mixin for container objects.
-    """
+    """Mixin for container objects."""
     name = None
     parent = None
 
@@ -39,8 +38,7 @@ class Container(object):
 
 
 class FSLocation(object):
-    """Mixin for objects with a file system location.
-    """
+    """Mixin for objects with a file system location."""
     fs_path = None
 
     @property
@@ -72,8 +70,7 @@ class FileAttributes(FSLocation):
 
 
 class ReprMixin(object):
-    """Mixin for objects inside the USB filesystem tree for debugging.
-    """
+    """Mixin for objects inside the USB filesystem tree for debugging."""
 
     def __repr__(self):
         return '<{0}.{1} [{2}] at {3}>'.format(
@@ -83,27 +80,30 @@ class ReprMixin(object):
             id(self)
         )
 
-    def printtree(self, indent=0):
-        print('{0}{1}'.format(indent * ' ', repr(self)))
+    def treerepr(self, indent=0, prefix=' '):
+        res = '{0}{1}\n'.format(indent * prefix, repr(self))
         manufacturer = getattr(self, 'manufacturer', None)
         if manufacturer is not None:
-            print('{0}- {1}'.format((indent + 4) * ' ', manufacturer))
+            res += '{0}- {1}\n'.format((indent + 4) * prefix, manufacturer)
         product = getattr(self, 'product', None)
         if product is not None:
-            print('{0}- {1}'.format((indent + 4) * ' ', product))
+            res += '{0}- {1}\n'.format((indent + 4) * prefix, product)
         if isinstance(self, InterfaceProvider):
             for iface in sorted(self.interfaces, key=lambda x: x.fs_name):
-                print('{0}{1}'.format((indent + 2) * ' ', repr(iface)))
+                res += '{0}{1}\n'.format((indent + 2) * prefix, repr(iface))
                 tty = iface.tty
                 if tty:
-                    print('{0}- {1}'.format((indent + 4) * ' ', tty))
+                    res += '{0}- {1}\n'.format((indent + 4) * prefix, tty)
         for node in sorted(self.values(), key=lambda x: x.fs_name):
-            node.printtree(indent + 2)
+            res += node.treerepr(indent + 2, prefix)
+        return res
+
+    def printtree(self):  # pragma: no cover
+        print(self.treerepr())
 
 
 class InterfaceProvider(Container, FSLocation):
-    """Mixin for objects providing USB interfaces.
-    """
+    """Mixin for objects providing USB interfaces."""
 
     @property
     def interfaces(self):
@@ -116,8 +116,7 @@ class InterfaceProvider(Container, FSLocation):
 
 
 class InterfaceAggregator(object):
-    """Mixin for objects providing USB interface aggregation.
-    """
+    """Mixin for objects providing USB interface aggregation."""
 
     def aggregated_interfaces(self, tty=False):
         def aggregate(node, ifaces):
@@ -134,8 +133,7 @@ class InterfaceAggregator(object):
 
 
 class USB(Container, FSLocation, InterfaceAggregator, ReprMixin):
-    """Object representing USB filsystem root.
-    """
+    """Object representing USB filsystem root."""
 
     def __init__(self, fs_path=USB_FS_ROOT):
         self.fs_path = fs_path
@@ -172,8 +170,7 @@ class USB(Container, FSLocation, InterfaceAggregator, ReprMixin):
 
 
 class Bus(FileAttributes, InterfaceProvider, ReprMixin):
-    """Object representing a USB bus.
-    """
+    """Object representing a USB bus."""
     __file_attributes__ = [
         'authorized',
         'authorized_default',
@@ -230,8 +227,7 @@ class Bus(FileAttributes, InterfaceProvider, ReprMixin):
 
 
 class Port(FileAttributes, InterfaceProvider, ReprMixin):
-    """Object representing a USB port.
-    """
+    """Object representing a USB port."""
     __file_attributes__ = [
         'authorized',
         'avoid_reset_quirk',
@@ -287,8 +283,7 @@ class Port(FileAttributes, InterfaceProvider, ReprMixin):
 
 
 class Interface(FileAttributes, ReprMixin):
-    """Object representing a USB interface.
-    """
+    """Object representing a USB interface."""
     __file_attributes__ = [
         'bAlternateSetting',
         'bInterfaceClass',

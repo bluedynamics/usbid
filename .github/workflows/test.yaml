@@ -1,0 +1,29 @@
+name: Test usbid
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run tests
+        run: make test

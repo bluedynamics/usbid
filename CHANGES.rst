@@ -1,36 +1,37 @@
 
-History
-=======
+Changelog
+=========
 
 2.2 (unreleased)
 ----------------
 
-- No changes yet.
+- Convert doctests to unittests.
+  [rnix]
 
 
-2.1
----
+2.1 (2022-07-18)
+----------------
 
 - Python 3 Support
   [rnix, 2022-07-17]
 
 
-2.0
----
+2.0 (2015-04-09)
+----------------
 
 - Complete rewrite.
   [rnix, 2015-04-08]
 
 
-1.0.3
------
+1.0.3 (2014-03-03)
+------------------
 
 - concrete ``ttyXXX`` device might live in ``tty`` subdirectory.
   [rnix, 2014-02-26]
 
 
-1.0.2
------
+1.0.2 (2014-02-26)
+------------------
 
 - Rename ``usbid.device.devicelist`` to ``usbid.device.device_list``. B/C
   import available.
@@ -44,8 +45,8 @@ History
   [jensens, 2014-02-20]
 
 
-1.0.1
------
+1.0.1 (2014-02-20)
+------------------
 
 - fix device node hierarchy
   [rnix, 2014-02-17]
@@ -54,8 +55,8 @@ History
   [rnix, 2014-02-17]
 
 
-1.0
----
+1.0 (2013-12-19)
+----------------
 
 - initial work
   [benniboy, jensens, 2013-12-19]

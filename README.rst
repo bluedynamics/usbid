@@ -63,7 +63,7 @@ Usage
 The API consists of a USB root object, from which all children can be accessed
 like python container types.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> from usbid import USB
     >>> usb = USB()
@@ -75,7 +75,7 @@ like python container types.
 
 Get a specific bus.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> bus = usb['1']
     >>> bus
@@ -83,7 +83,7 @@ Get a specific bus.
 
 Get port from bus.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> port = bus['1']
     >>> port
@@ -91,14 +91,14 @@ Get port from bus.
 
 Get interface from port.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> port.interfaces
     [<usbid.fs.Interface [1-1:1.0] at ...>]
 
 Interfaces might have tty associated.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> port.interfaces[0].tty
     'ttyUSB0'
@@ -107,7 +107,7 @@ It's not a good idea to refer to a USB interface by its tty mount name. But
 it's a good idea to remember the file system name for unique identification,
 lookup interface by this name and then connect to corresponding tty.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> interface = usb.get_interface('1-1:1.0')
     >>> interface.tty
@@ -115,7 +115,7 @@ lookup interface by this name and then connect to corresponding tty.
 
 For debugging you can print the USB structure.
 
-.. code-block:: python
+.. code-block:: pycon
 
     >>> usb.printtree()
     <usbid.fs.USB [/sys/bus/usb/devices] at ...>
@@ -128,17 +128,6 @@ For debugging you can print the USB structure.
             - FT232R USB UART
           <usbid.fs.Interface [1-1:1.0] at ...>
             - ttyUSB0
-
-
-Coverage report
-===============
-
-::
-
-    lines   cov%   module
-        4   100%   usbid.__init__
-      248   100%   usbid.fs
-       29   100%   usbid.tests
 
 
 Source Code
