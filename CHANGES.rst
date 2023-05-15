@@ -2,7 +2,7 @@
 Changelog
 =========
 
-2.2 (unreleased)
+2.2 (2023-05-15)
 ----------------
 
 - Officially support Python 3.7 - 3.11.
